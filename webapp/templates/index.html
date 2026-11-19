@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Math Buddy Workbench</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header class="top">
+  <h1><a href="#overview">Math Buddy</a></h1>
+  <span class="sub">Block workbench: try each block of the tutor separately, with your own input</span>
+  <span class="status" id="status">loading models…</span>
+</header>
+
+<div class="layout">
+<nav class="index" aria-label="Blocks">
+  <a href="#overview" class="home"><span class="k">00</span><span class="t">Overview</span></a>
+  <div class="group">Text</div>
+  <a href="#b1"><span class="k">B1</span><span class="t">Interest</span></a>
+  <a href="#b2"><span class="k">B2</span><span class="t">Struggle topic</span></a>
+  <div class="group">Visual</div>
+  <a href="#b3"><span class="k">B3</span><span class="t">Handwritten digit</span></a>
+  <a href="#b4"><span class="k">B4</span><span class="t">Attention</span></a>
+  <div class="group">Audio</div>
+  <a href="#b5a"><span class="k">B5a</span><span class="t">Spoken digit</span></a>
+  <a href="#b5b"><span class="k">B5b</span><span class="t">Confidence</span></a>
+  <div class="group">Combined</div>
+  <a href="#b6"><span class="k">B6</span><span class="t">Mastery over time</span></a>
+  <a href="#b7"><span class="k">B7</span><span class="t">Error types</span></a>
+  <a href="#b8"><span class="k">B8</span><span class="t">Student profiles</span></a>
+</nav>
+
+<main>
+
+<!-- ============================================================ OVERVIEW -->
+<section class="block" id="overview">
+  <div class="intro">
+    <p>Math Buddy is a tablet tutor for elementary school math. It reads what the child writes, hears what the child says,
+      watches whether the child is paying attention, and keeps track of how much of every topic the child has learned.</p>
+    <p>Every function of the tutor is one machine learning block. Six blocks are <b>supervised</b> (they learned from
+      labelled examples); B7 and B8 are <b>unsupervised</b> (they find groups without labels). This page lets you feed each
+      block your own input and see its output, independently of the others.</p>
+  </div>
+
+  <div class="diagram" role="img" aria-label="Block diagram of the tutor">
+    <div class="student">STUDENT (Can, 3rd grade, tablet)</div>
+    <div class="mods">
+      <div class="mod"><span class="label">Text</span>
+        <div class="boxes">
+          <a class="box" href="#b1"><b>B1</b><span>Interest</span><em>supervised</em></a>
+          <a class="box" href="#b2"><b>B2</b><span>Struggle topic</span><em>supervised</em></a>
+        </div></div>
+      <div class="mod"><span class="label">Visual</span>
+        <div class="boxes">
+          <a class="box" href="#b3"><b>B3</b><span>Handwritten digit</span><em>supervised</em></a>
+          <a class="box" href="#b4"><b>B4</b><span>Attention</span><em>supervised</em></a>
+        </div></div>
+      <div class="mod"><span class="label">Audio</span>
+        <div class="boxes">
+          <a class="box" href="#b5a"><b>B5a</b><span>Spoken digit</span><em>supervised</em></a>
+          <a class="box" href="#b5b"><b>B5b</b><span>Confidence</span><em>supervised</em></a>
+        </div></div>
+    </div>
+    <div class="down">↓ graded answers · attention · confidence ↓</div>
+    <div class="lower"><a class="box" href="#b6"><b>B6</b><span>Mastery percentage per topic, over time</span><em>supervised</em></a></div>
+    <div class="down">↓ answer log ↓</div>
+    <div class="lower2">
+      <a class="box unsup" href="#b7"><b>B7</b><span>Error type discovery</span><em>unsupervised · k-means</em></a>
+      <a class="box unsup" href="#b8"><b>B8</b><span>Student profiles</span><em>unsupervised · k-means</em></a>
+    </div>
+    <div class="end">→ teacher dashboard</div>
+    <div class="keyline">solid border = supervised · dashed border = unsupervised · B1 output also feeds personalised word problems</div>
+  </div>
+
+  <h3 style="margin-bottom:8px">Test results from the notebook</h3>
+  <table class="metrics" id="metrics"><tr><th>Block</th><th>Measure</th><th>Value</th></tr></table>
+  <footer>Models are exported from math_buddy_its.ipynb by webapp/export_models.py. All data except B3 (load_digits, MNIST) and B5a (Free Spoken Digit Dataset) is synthetic.</footer>
+</section>
+
+<!-- ============================================================ B1 -->
+<section class="block" id="b1">
+  <div class="block-head"><span class="k">B1</span><h2>Interest detection</h2>
+    <div class="facts"><span>Text</span><span>Supervised classification</span><span>TF-IDF + Logistic Regression</span><span data-metric="B1"></span></div></div>
+  <p class="lede">At the start of a session the tutor asks <i>“What did you do today?”</i>. B1 finds the child's interest in the answer,
+    so word problems can be built around it. A second model reads the mood of the message: if the child is negative about the
+    topic (<i>“I hate football”</i>), the interest is not used.</p>
+  <div class="bench">
+    <div class="in">
+      <span class="label">Input · message</span>
+      <textarea id="b1-msg" placeholder="Type what the child might say…">I played football with my friends after school</textarea>
+      <div class="row"><button class="primary" data-run="b1">Analyse</button></div>
+      <div class="examples"><span class="label">Try</span>
+        <button class="link" data-fill="b1-msg">I fed my rabbit and then we baked cookies</button>
+        <button class="link" data-fill="b1-msg">I hate football, it's so boring</button>
+        <button class="link" data-fill="b1-msg">Chess is so boring</button>
+        <button class="link" data-fill="b1-msg">I played soccer today</button>
+      </div>
+    </div>
+    <div class="out" id="b1-out"><p class="empty">The result appears here.</p></div>
+  </div>
+  <div class="notes"><h3>Things to notice</h3><ul>
+    <li><i>soccer</i> was deliberately left out of the training data. TF-IDF only knows the words it has seen, so an unknown word carries no information; DistilBERT would know that soccer ≈ football.</li>
+    <li>Interests: sports, animals, food, games. Training data: ~1,600 synthetic messages with typos and 8% noisy sentiment labels.</li>
+  </ul></div>
+</section>
+
+<!-- ============================================================ B2 -->
+<section class="block" id="b2">
+  <div class="block-head"><span class="k">B2</span><h2>Struggle topic detection</h2>
+    <div class="facts"><span>Text</span><span>Supervised classification</span><span>TF-IDF + Logistic Regression</span><span data-metric="B2"></span></div></div>
+  <p class="lede">When the child says which part of math feels hard, B2 maps the message to one of five topics.
+    A negative mood makes the tutor start that topic with easy questions.</p>
+  <div class="bench">
+    <div class="in">
+      <span class="label">Input · message</span>
+      <textarea id="b2-msg">I don't understand multiplication at all</textarea>
+      <div class="row"><button class="primary" data-run="b2">Analyse</button></div>
+      <div class="examples"><span class="label">Try</span>
+        <button class="link" data-fill="b2-msg">I can do addition but fractions are so hard</button>
+        <button class="link" data-fill="b2-msg">Can we practice dividing by 3?</button>
+        <button class="link" data-fill="b2-msg">Taking away numbers is fun</button>
+        <button class="link" data-fill="b2-msg">What is half of a pizza plus a quarter?</button>
+      </div>
+    </div>
+    <div class="out" id="b2-out"><p class="empty">The result appears here.</p></div>
+  </div>
+  <div class="notes"><h3>Things to notice</h3><ul>
+    <li>Topics: addition, subtraction, multiplication, division, fractions. Cross-topic messages (“I can do X but Y is hard”) are in the training data on purpose.</li>
+    <li>The sentiment model uses word pairs (bigrams), which is why “not boring” and “so boring” are told apart.</li>
+  </ul></div>
+</section>
+
+<!-- ============================================================ B3 -->
+<section class="block" id="b3">
+  <div class="block-head"><span class="k">B3</span><h2>Handwritten digit recognition</h2>
+    <div class="facts"><span>Visual</span><span>Supervised classification</span><span>MNIST · Random Forest</span><span data-metric="B3 (MNIST)"></span></div></div>
+  <p class="lede">The child writes the answer with a finger. Draw a digit in the square; it is prepared like an MNIST image
+    (crop, thicken, fit into 20×20, centre in 28×28) and read by the MNIST model. The small 8×8 model from the first part of the
+    notebook is shown next to it for comparison.</p>
+  <div class="bench">
+    <div class="in">
+      <span class="label">Input · drawing</span>
+      <div class="pad-wrap"><canvas id="pad" width="280" height="280"></canvas></div>
+      <div class="row"><button class="primary" data-run="b3">Read digit</button><button id="pad-clear">Clear</button>
+        <label class="muted"><input type="checkbox" id="pad-auto" checked> read when I lift the pen</label></div>
+    </div>
+    <div class="out" id="b3-out"><p class="empty">Draw one digit, 0–9.</p></div>
+  </div>
+  <div class="notes"><h3>Things to notice</h3><ul>
+    <li>The 8×8 model scores 97% on its own test set but misreads most real drawings: 8×8 pixels are too few (the hole of a 6 disappears) and drawings look different from the scanned training digits. This is notebook section B3.8.</li>
+    <li>Digits written very thin, very small or touching the edge are harder. MNIST digits are thick strokes, centred.</li>
+  </ul></div>
+</section>
+
+<!-- ============================================================ B4 -->
+<section class="block" id="b4">
+  <div class="block-head"><span class="k">B4</span><h2>Attention detection</h2>
+    <div class="facts"><span>Visual</span><span>Supervised classification</span><span>Random Forest (200 trees)</span><span data-metric="B4"></span></div></div>
+  <p class="lede">The front camera measures three numbers for every 10-second window. In a real app they would come from a face
+    tracker such as MediaPipe; here you set them with sliders. A value can be switched off to simulate the camera losing the face.</p>
+  <div class="bench">
+    <div class="in" id="b4-in">
+      <span class="label">Input · live camera</span>
+      <div class="row" style="margin-top:0"><button class="primary" id="cam-btn">Turn on camera</button>
+        <span class="muted" id="cam-msg">The video stays in your browser; only three numbers per second go to the model.</span></div>
+      <div id="cam-box" hidden>
+        <video id="cam-video" playsinline muted></video>
+        <p class="muted mono" id="cam-live"></p>
+        <span class="label">B4 decision, one tick per second (black attentive · red distracted · ochre tired)</span>
+        <div class="timeline" id="cam-timeline"></div>
+        <p class="muted mono" id="cam-share"></p>
+      </div>
+      <span class="label" style="margin-top:18px">Input · camera features <span style="text-transform:none;letter-spacing:0">(set by the camera, or by hand)</span></span>
+      <div class="field" data-key="screen_gaze_ratio"><label>Looking at the screen <small>share of the window</small></label><output></output>
+        <input type="range" min="0" max="1" step="0.01" value="0.9">
+        <span class="off"><input type="checkbox"> camera lost the face (missing value)</span></div>
+      <div class="field" data-key="head_angle"><label>Head turned away <small>degrees</small></label><output></output>
+        <input type="range" min="0" max="60" step="1" value="5">
+        <span class="off"><input type="checkbox"> missing</span></div>
+      <div class="field" data-key="blink_rate"><label>Blink rate <small>per minute</small></label><output></output>
+        <input type="range" min="2" max="45" step="1" value="15">
+        <span class="off"><input type="checkbox"> missing</span></div>
+      <div class="examples"><span class="label">Presets</span>
+        <button class="link" data-b4="0.90,4,14">Can solving the problem</button>
+        <button class="link" data-b4="0.42,28,17">Can looking out of the window</button>
+        <button class="link" data-b4="0.66,14,30">Can sleepy after school</button>
+      </div>
+    </div>
+    <div class="out" id="b4-out"><p class="empty">Move a slider.</p></div>
+  </div>
+  <div class="notes"><h3>Things to notice</h3><ul>
+    <li><b>How the camera measures</b> (MediaPipe Face Landmarker, 478 face points + eye scores): the first 2 seconds record your “looking at the screen” direction.
+      <i>Head angle</i> = average angle between your face direction and that direction over the last 10 s.
+      <i>Looking at the screen</i> = share of frames in the last 10 s with a face, turned less than 20°, eyes not looking sideways.
+      <i>Blink rate</i> = blinks per minute over the last 30 s. If the face is missing for most of the window, the value is sent as missing.</li>
+    <li><b>Expect surprises.</b> B4 was trained on synthetic numbers that we assumed, not on real camera measurements. A real person's normal blink rate or head movement may sit near another class – the gap between assumed and measured data is a limitation for the report.</li>
+    <li>Missing values are filled with the training median (SimpleImputer) before the forest sees them, so the prediction with a missing value leans towards the typical case.</li>
+    <li>Data is synthetic, with overlapping classes on purpose. Real alternative: DAiSEE / EngageNet engagement datasets.</li>
+  </ul></div>
+</section>
+
+<!-- ============================================================ B5a -->
+<section class="block" id="b5a">
+  <div class="block-head"><span class="k">B5a</span><h2>Spoken digit recognition</h2>
+    <div class="facts"><span>Audio</span><span>Supervised classification</span><span>MFCC + Logistic Regression</span><span data-metric="B5a"></span></div></div>
+  <p class="lede">The child says the answer aloud. The recording becomes 40 numbers (mean and spread of 20 MFCC coefficients)
+    and a Logistic Regression picks the digit. Say one English digit (“zero” … “nine”), or play a sample from the dataset.</p>
+  <div class="bench">
+    <div class="in">
+      <span class="label">Input · microphone</span>
+      <div class="rec" id="rec"><span class="dot"></span><button class="primary" id="rec-btn">Record 1.5 s</button>
+        <span class="muted" id="rec-msg">The browser will ask for the microphone.</span></div>
+      <span class="label" style="margin-top:18px">Or · upload a .wav</span>
+      <input type="file" id="wav-file" accept=".wav,audio/wav">
+      <span class="label" style="margin-top:18px">Or · a dataset sample (speaker “george”)</span>
+      <div class="samples" id="samples"></div>
+    </div>
+    <div class="out" id="b5a-out"><p class="empty">Record or choose a sample.</p></div>
+  </div>
+  <div class="notes"><h3>Things to notice</h3><ul>
+    <li><b>Expect mistakes on your own voice.</b> The model knows only six adult speakers. On a speaker it has never heard, accuracy drops from 92% to about 50% (notebook B5a.8). Ten calibration recordings per digit from the new speaker raise it to ~82% (B5a.9).</li>
+    <li>Your recording is resampled to 8 kHz and the silence around the word is cut, because the dataset recordings are cut tightly. The samples were possibly part of the training data, so they are easy.</li>
+  </ul></div>
+</section>
+
+<!-- ============================================================ B5b -->
+<section class="block" id="b5b">
+  <div class="block-head"><span class="k">B5b</span><h2>Confidence detection</h2>
+    <div class="facts"><span>Audio</span><span>Supervised classification</span><span>Logistic Regression</span><span data-metric="B5b"></span></div></div>
+  <p class="lede">The same spoken answer also tells <i>how</i> the child answered. Four voice features decide whether the answer
+    sounded confident or hesitant: press “Ask me a question” and answer aloud, or set the features by hand. B6 uses how often a child was hesitant.</p>
+  <div class="bench">
+    <div class="in" id="b5b-in">
+      <span class="label">Input · microphone</span>
+      <div class="row" style="margin-top:0"><button class="primary" id="ask-btn">Ask me a question</button>
+        <span class="muted" id="ask-msg">A question appears and recording starts. Say the answer aloud; recording stops when you are quiet.</span></div>
+      <div class="ask" id="ask-box" hidden><span class="q" id="ask-q"></span><span class="rec live" id="ask-live"><span class="dot"></span><span id="ask-state">listening…</span></span></div>
+      <span class="label" style="margin-top:18px">Input · voice features of one answer <span style="text-transform:none;letter-spacing:0">(measured from the microphone, or set by hand)</span></span>
+      <div class="field" data-key="speech_rate"><label>Speech rate <small>syllables per second</small></label><output></output>
+        <input type="range" min="0.8" max="7" step="0.1" value="4.0"></div>
+      <div class="field" data-key="pause_count"><label>Pauses <small>count</small></label><output></output>
+        <input type="range" min="0" max="10" step="1" value="0"></div>
+      <div class="field" data-key="response_delay"><label>Time before answering <small>seconds</small></label><output></output>
+        <input type="range" min="0.2" max="12" step="0.1" value="1.0"></div>
+      <div class="field" data-key="pitch_variation"><label>Pitch variation <small>semitones</small></label><output></output>
+        <input type="range" min="0.5" max="6" step="0.1" value="1.8"></div>
+      <div class="examples"><span class="label">Presets</span>
+        <button class="link" data-b5b="4.2,0,0.9,1.8">“Nine!” – quick and sure</button>
+        <button class="link" data-b5b="2.4,3,3.5,3.6">“Umm… nine… I think?”</button>
+      </div>
+    </div>
+    <div class="out" id="b5b-out"><p class="empty">Move a slider.</p></div>
+  </div>
+  <div class="notes"><h3>Things to notice</h3><ul>
+    <li><b>How the microphone measures</b> (librosa, on the server): loudness is computed every 10 ms; louder than the background = speech.
+      <i>Time before answering</i> = from the moment the question appears to the first speech.
+      <i>Pauses</i> = silences longer than 0.25 s between the first and the last speech.
+      <i>Speech rate</i> = loudness peaks (≈ syllables) per second of the answer.
+      <i>Pitch variation</i> = spread of the voice pitch (pYIN) in semitones. B5a also tries to read the last word as a digit.</li>
+    <li><b>Expect surprises.</b> The training data is synthetic: we assumed these numbers, nobody measured them on children. Counting syllables from loudness peaks is approximate, and an adult voice or a noisy room shifts the values.</li>
+    <li>The strongest signal is the delay before answering, then the speech rate and the pauses (coefficients in the notebook, B5b.5).</li>
+    <li>Synthetic data. Real alternative: the Harvard Uncertainty speech corpus.</li>
+  </ul></div>
+</section>
+
+<!-- ============================================================ B6 -->
+<section class="block" id="b6">
+  <div class="block-head"><span class="k">B6</span><h2>Mastery percentage over time</h2>
+    <div class="facts"><span>Combined</span><span>Supervised (probability)</span><span>Knowledge tracing · Logistic Regression</span><span id="b6-metric"></span></div></div>
+  <p class="lede">Mastery of a topic = the probability that the child answers a medium question of that topic correctly while
+    attentive. B6 estimates it from the history of answers: number of attempts, share correct so far, the last five answers,
+    and how often the child sounded hesitant.</p>
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="b6-manual">Answer questions yourself</button>
+    <button role="tab" aria-selected="false" data-tab="b6-sim">Simulate four weeks</button>
+    <button role="tab" aria-selected="false" data-tab="b6-cold">Cold start</button>
+  </div>
+
+  <div class="panel" id="b6-manual">
+    <div class="bench">
+      <div class="in">
+        <span class="label">Input · one answer at a time</span>
+        <div class="grid-2">
+          <div><label>Topic</label><select id="b6-topic"></select></div>
+          <div><label>Difficulty</label><select id="b6-diff"><option value="1">1 easy</option><option value="2" selected>2 medium</option><option value="3">3 hard</option></select></div>
+          <div><label>Attention (B4)</label><select id="b6-att"><option>attentive</option><option>distracted</option><option>tired</option></select></div>
+          <div><label>Answer mode</label><select id="b6-mode"><option value="handwriting">handwriting (B3)</option><option value="speech">speech (B5a)</option></select></div>
+        </div>
+        <div class="row"><label class="muted"><input type="checkbox" id="b6-hes" disabled> sounded hesitant (B5b, only for speech)</label></div>
+        <div class="row">
+          <button class="primary" data-b6="1">+ Correct</button><button data-b6="0">+ Wrong</button>
+          <button class="link" id="b6-burst">add 5 correct in a row</button>
+          <button class="link" id="b6-reset">start over</button>
+        </div>
+        <div class="answers-log"><table><thead><tr><th>#</th><th>topic</th><th>diff</th><th>attention</th><th>mode</th><th>result</th></tr></thead><tbody id="b6-log"></tbody></table></div>
+      </div>
+      <div class="out" id="b6-out"><p class="empty">Loading…</p></div>
+    </div>
+  </div>
+
+  <div class="panel" id="b6-sim" hidden>
+    <div class="bench">
+      <div class="in" id="b6-sim-in">
+        <span class="label">Input · hidden traits of a simulated student</span>
+        <div class="field" data-key="ability"><label>General ability <small>0 = average</small></label><output></output>
+          <input type="range" min="-1.5" max="1.5" step="0.1" value="0"></div>
+        <div class="field" data-key="learning_rate"><label>Learning rate <small>skill gain per question</small></label><output></output>
+          <input type="range" min="0.01" max="0.12" step="0.005" value="0.05"></div>
+        <div class="field" data-key="distractibility"><label>Distractibility</label><output></output>
+          <input type="range" min="0" max="0.6" step="0.02" value="0.25"></div>
+        <div class="field" data-key="speech_preference"><label>Speaks the answer <small>share</small></label><output></output>
+          <input type="range" min="0" max="1" step="0.05" value="0.4"></div>
+        <div class="row"><button class="primary" id="b6-run">Simulate 28 days</button><button class="link" id="b6-seed">new random seed</button>
+          <span class="muted mono" id="b6-seed-v"></span></div>
+        <p class="muted" style="margin-top:12px">The model never sees these traits. It only sees the answers the simulation produces, and its estimate (solid) is drawn against the true mastery that only the simulation knows (dotted).</p>
+      </div>
+      <div class="out" id="b6-sim-out"><p class="empty">Press “Simulate”.</p></div>
+    </div>
+  </div>
+  <div class="panel" id="b6-cold" hidden>
+    <div class="bench">
+      <div class="in">
+        <span class="label">The problem</span>
+        <p>A brand-new student has no answers yet, so B6 can only say <i>“like the average student”</i>. This is the
+          <b>cold start</b> problem. Every topic needs its own evidence: five correct additions say nothing about fractions.</p>
+        <span class="label" style="margin-top:14px">The solution in Math Buddy</span>
+        <p>Day 0 is a <b>placement test</b>: 5 medium questions per topic, 25 in total, before the normal lessons begin.
+          The curve on the right (notebook section B6.7, 40 unseen test students) shows why 5: after about five answers of a
+          topic the error stops dropping quickly.</p>
+        <span class="label" style="margin-top:14px">Your student in the “Answer questions yourself” tab</span>
+        <div id="b6-cold-status"></div>
+        <div class="row"><button id="b6-placement">Run a placement test there (25 random answers)</button></div>
+      </div>
+      <div class="out" id="b6-cold-out"><p class="empty">Loading…</p></div>
+    </div>
+  </div>
+
+  <div class="notes"><h3>Things to notice</h3><ul>
+    <li>A new student starts at the average of all students. Each topic needs about five answers before the estimate becomes personal (cold start, notebook B6.7). The day-0 placement test exists for this.</li>
+    <li>Answers given while distracted count less: a wrong answer while distracted is partly explained by the distraction.</li>
+    <li>Real alternative dataset: ASSISTments.</li>
+  </ul></div>
+</section>
+
+<!-- ============================================================ B7 -->
+<section class="block" id="b7">
+  <div class="block-head"><span class="k">B7</span><h2>Error type discovery</h2>
+    <div class="facts"><span>Combined</span><span>Unsupervised</span><span>K-Means, k = 4</span><span>ARI 0.77 vs. hidden types</span></div></div>
+  <p class="lede">Nobody labels <i>why</i> an answer is wrong. B7 describes the shape of every mistake with four numbers and
+    K-Means groups similar mistakes. The four groups were named afterwards: forgotten carry, careless slip, wrong operation,
+    and the fraction rule “add the tops and the bottoms”.</p>
+  <div class="bench">
+    <div class="in">
+      <span class="label">Input · question and the child's answer</span>
+      <div class="equation">
+        <input type="text" id="b7-a" value="47" aria-label="first number">
+        <select id="b7-op" aria-label="operation">
+          <option value="addition">+</option><option value="subtraction">−</option><option value="multiplication">×</option>
+          <option value="division">÷</option><option value="fractions">+ (fractions)</option></select>
+        <input type="text" id="b7-b" value="38" aria-label="second number">
+        <span>=</span>
+        <input type="text" id="b7-given" value="75" aria-label="child's answer">
+      </div>
+      <div class="row"><button class="primary" data-run="b7">Classify mistake</button>
+        <button id="b7-random">Random mistake</button></div>
+      <div class="hidden-truth" id="b7-truth"></div>
+      <div class="examples"><span class="label">Try</span>
+        <button class="link" data-b7="addition,85,47,122">85 + 47 = 122</button>
+        <button class="link" data-b7="subtraction,52,38,24">52 − 38 = 24</button>
+        <button class="link" data-b7="multiplication,7,8,15">7 × 8 = 15</button>
+        <button class="link" data-b7="fractions,1/2,1/3,2/5">1/2 + 1/3 = 2/5</button>
+        <button class="link" data-b7="multiplication,23,4,82">23 × 4 = 82</button>
+      </div>
+    </div>
+    <div class="out" id="b7-out"><p class="empty">The result appears here.</p></div>
+  </div>
+  <div class="notes"><h3>Things to notice</h3><ul>
+    <li>Fractions are typed as <code>3/4</code>. They are not reduced: 4/6 is kept as written, because the denominator shows the method.</li>
+    <li>“Random mistake” uses the notebook's generator and shows the hidden type it used, so you can check B7. A wrong operation on small numbers (2 + 4 = 2) looks like a careless slip; that is the main confusion of the model.</li>
+    <li>Real alternative dataset: Eedi NeurIPS 2020 Education Challenge.</li>
+  </ul></div>
+</section>
+
+<!-- ============================================================ B8 -->
+<section class="block" id="b8">
+  <div class="block-head"><span class="k">B8</span><h2>Student profiles</h2>
+    <div class="facts"><span>Combined</span><span>Unsupervised</span><span>K-Means, k = 4</span><span>200 simulated students</span></div></div>
+  <p class="lede">One row per student, built from the other blocks. K-Means puts students with a similar learning pattern into
+    the same profile; every profile comes with a teaching recommendation for the teacher dashboard.</p>
+  <div class="bench">
+    <div class="in" id="b8-in">
+      <span class="label">Input · one student</span>
+      <div class="field" data-key="avg_accuracy"><label>Average accuracy <small>B6 log</small></label><output></output>
+        <input type="range" min="0.25" max="0.9" step="0.01" value="0.58"></div>
+      <div class="field" data-key="learning_speed"><label>Learning speed <small>slope of the learning curve</small></label><output></output>
+        <input type="range" min="-0.1" max="0.7" step="0.01" value="0.33"></div>
+      <div class="field" data-key="avg_attention"><label>Attentive share <small>B4</small></label><output></output>
+        <input type="range" min="0.2" max="0.95" step="0.01" value="0.61"></div>
+      <div class="field" data-key="spoken_answer_ratio"><label>Spoken answers <small>B5a vs. B3</small></label><output></output>
+        <input type="range" min="0" max="0.95" step="0.01" value="0.53"></div>
+      <div class="stack"><label>Characteristic error (B7)</label><select id="b8-err"></select></div>
+      <div class="examples"><span class="label">Presets</span>
+        <button class="link" data-b8="0.58,0.33,0.61,0.53,forgot_carry">Can after four weeks</button>
+        <button class="link" data-b8="0.72,0.55,0.85,0.15,careless_slip">Quick, focused, writes</button>
+        <button class="link" data-b8="0.45,0.08,0.75,0.40,wrong_operation">Struggles, little progress</button>
+        <button class="link" data-b8="0.60,0.30,0.35,0.30,careless_slip">Often looks away</button>
+      </div>
+    </div>
+    <div class="out" id="b8-out"><p class="empty">Move a slider.</p></div>
+  </div>
+  <div class="notes"><h3>Things to notice</h3><ul>
+    <li>The silhouette score is only about 0.2: children do not fall into a few separate types, their traits vary continuously. K-Means still gives a useful segmentation into four groups a teacher can act on.</li>
+    <li>Learning speed is the slope of a per-student learning curve (topic, difficulty and attention held fixed), not the mastery gain, which made weak starters look like fast learners.</li>
+    <li>Real alternative dataset: OULAD (Open University Learning Analytics Dataset).</li>
+  </ul></div>
+</section>
+
+</main>
+</div>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='camera.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 590" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#444"/>
+    </marker>
+    <style>
+      .sup  { fill:#e3eefb; stroke:#2f6db5; stroke-width:1.6; }
+      .uns  { fill:#fdeedd; stroke:#c46a12; stroke-width:1.6; }
+      .app  { fill:#f4f4f4; stroke:#777; stroke-width:1.2; stroke-dasharray:5 3; }
+      .stu  { fill:#e9f6ea; stroke:#2e8b3a; stroke-width:1.6; }
+      .t    { font-size:12px; font-weight:bold; fill:#1a1a1a; text-anchor:middle; }
+      .s    { font-size:10px; fill:#333; text-anchor:middle; }
+      .m    { font-size:11px; font-weight:bold; fill:#555; text-anchor:middle; letter-spacing:1px; }
+      .l    { font-size:9.5px; fill:#555; font-style:italic; }
+      .ln   { stroke:#444; stroke-width:1.3; fill:none; marker-end:url(#arrow); }
+    </style>
+  </defs>
+
+  <!-- Student -->
+  <rect class="stu" x="250" y="8" width="260" height="38" rx="8"/>
+  <text class="t" x="380" y="25">STUDENT (Can, 3rd grade)</text>
+  <text class="s" x="380" y="39">tablet app "Math Buddy"</text>
+
+  <!-- modality labels -->
+  <text class="m" x="135" y="72">TEXT</text>
+  <text class="m" x="380" y="72">VISUAL</text>
+  <text class="m" x="625" y="72">AUDIO</text>
+  <line x1="20" y1="78" x2="250" y2="78" stroke="#bbb"/>
+  <line x1="265" y1="78" x2="495" y2="78" stroke="#bbb"/>
+  <line x1="510" y1="78" x2="740" y2="78" stroke="#bbb"/>
+  <path class="ln" d="M300,46 L150,60"/>
+  <path class="ln" d="M380,46 L380,60"/>
+  <path class="ln" d="M460,46 L610,60"/>
+
+  <!-- supervised perception blocks -->
+  <rect class="sup" x="20"  y="90" width="110" height="80" rx="6"/>
+  <text class="t" x="75" y="108">B1 Interest</text>
+  <text class="s" x="75" y="124">chat message</text>
+  <text class="s" x="75" y="138">TF-IDF + LogReg</text>
+  <text class="s" x="75" y="152">→ interest +</text>
+  <text class="s" x="75" y="164">sentiment</text>
+
+  <rect class="sup" x="140" y="90" width="110" height="80" rx="6"/>
+  <text class="t" x="195" y="108">B2 Struggle</text>
+  <text class="s" x="195" y="124">chat message</text>
+  <text class="s" x="195" y="138">TF-IDF + LogReg</text>
+  <text class="s" x="195" y="152">→ topic +</text>
+  <text class="s" x="195" y="164">sentiment</text>
+
+  <rect class="sup" x="265" y="90" width="110" height="80" rx="6"/>
+  <text class="t" x="320" y="108">B3 Handwriting</text>
+  <text class="s" x="320" y="124">finger drawing</text>
+  <text class="s" x="320" y="138">LogReg / R. Forest</text>
+  <text class="s" x="320" y="152">→ digit 0–9 +</text>
+  <text class="s" x="320" y="164">probability</text>
+
+  <rect class="sup" x="385" y="90" width="110" height="80" rx="6"/>
+  <text class="t" x="440" y="108">B4 Attention</text>
+  <text class="s" x="440" y="124">front camera</text>
+  <text class="s" x="440" y="138">Random Forest</text>
+  <text class="s" x="440" y="152">→ attentive /</text>
+  <text class="s" x="440" y="164">distracted / tired</text>
+
+  <rect class="sup" x="510" y="90" width="110" height="80" rx="6"/>
+  <text class="t" x="565" y="108">B5a Spoken digit</text>
+  <text class="s" x="565" y="124">microphone</text>
+  <text class="s" x="565" y="138">MFCC + LogReg</text>
+  <text class="s" x="565" y="152">→ digit 0–9 +</text>
+  <text class="s" x="565" y="164">probability</text>
+
+  <rect class="sup" x="630" y="90" width="110" height="80" rx="6"/>
+  <text class="t" x="685" y="108">B5b Confidence</text>
+  <text class="s" x="685" y="124">microphone</text>
+  <text class="s" x="685" y="138">LogReg</text>
+  <text class="s" x="685" y="152">→ confident /</text>
+  <text class="s" x="685" y="164">hesitant</text>
+
+  <!-- question selection (not a learning block) -->
+  <rect class="app" x="20" y="215" width="230" height="52" rx="6"/>
+  <text class="t" x="135" y="235">Question selection</text>
+  <text class="s" x="135" y="250">word problems about the interest,</text>
+  <text class="s" x="135" y="262">on the struggle topic (rule-based)</text>
+  <path class="ln" d="M75,170 L75,213"/>
+  <path class="ln" d="M195,170 L195,213"/>
+
+  <!-- B6 -->
+  <rect class="sup" x="320" y="290" width="320" height="66" rx="6"/>
+  <text class="t" x="480" y="310">B6 Mastery percentage over time</text>
+  <text class="s" x="480" y="326">answer history + attention + confidence history</text>
+  <text class="s" x="480" y="340">Logistic Regression (knowledge tracing)</text>
+  <text class="s" x="480" y="352">→ P(correct) = mastery % per topic, time series</text>
+
+  <path class="ln" d="M250,250 L318,305"/>
+  <text class="l" x="252" y="292">questions</text>
+  <path class="ln" d="M320,170 L370,288"/>
+  <path class="ln" d="M440,170 L450,288"/>
+  <path class="ln" d="M565,170 L530,288"/>
+  <path class="ln" d="M685,170 L610,288"/>
+  <text class="l" x="336" y="222" text-anchor="end">is_correct</text>
+  <text class="l" x="446" y="215">attention</text>
+  <text class="l" x="538" y="236" text-anchor="end">is_correct</text>
+  <text class="l" x="664" y="226">hesitant</text>
+
+  <!-- unsupervised -->
+  <rect class="uns" x="150" y="410" width="230" height="66" rx="6"/>
+  <text class="t" x="265" y="430">B7 Error type discovery</text>
+  <text class="s" x="265" y="446">one row = one wrong answer</text>
+  <text class="s" x="265" y="460">K-Means (k = 4)</text>
+  <text class="s" x="265" y="472">→ carry / slip / operation / fraction rule</text>
+
+  <rect class="uns" x="480" y="410" width="230" height="66" rx="6"/>
+  <text class="t" x="595" y="430">B8 Student profiles</text>
+  <text class="s" x="595" y="446">one row = one student</text>
+  <text class="s" x="595" y="460">K-Means (k = 4)</text>
+  <text class="s" x="595" y="472">→ profile + teaching recommendation</text>
+
+  <path class="ln" d="M420,356 L320,408"/>
+  <text class="l" x="350" y="386" text-anchor="end">wrong answers</text>
+  <path class="ln" d="M560,356 L590,408"/>
+  <text class="l" x="594" y="388">per-student statistics</text>
+  <path class="ln" d="M380,443 L478,443"/>
+  <text class="l" x="385" y="436">characteristic error</text>
+
+  <!-- dashboard -->
+  <rect class="app" x="280" y="520" width="200" height="40" rx="6"/>
+  <text class="t" x="380" y="538">Teacher dashboard</text>
+  <text class="s" x="380" y="552">mastery curves · errors · profiles</text>
+  <path class="ln" d="M265,476 L330,518"/>
+  <path class="ln" d="M595,476 L440,518"/>
+  <path class="ln" d="M640,356 C720,420 740,520 482,540"/>
+
+  <!-- legend -->
+  <rect class="sup" x="20" y="530" width="18" height="12"/>
+  <text x="44" y="540" font-size="10">Supervised block</text>
+  <rect class="uns" x="20" y="550" width="18" height="12"/>
+  <text x="44" y="560" font-size="10">Unsupervised block</text>
+  <rect class="app" x="20" y="570" width="18" height="12"/>
+  <text x="44" y="580" font-size="10">Application logic (no learning)</text>
+</svg>

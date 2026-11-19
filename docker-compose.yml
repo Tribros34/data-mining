@@ -1,0 +1,17 @@
+# Math Buddy – block workbench
+#   1. python webapp/export_models.py      (once, with the project .venv; creates webapp/models/blocks.pkl)
+#   2. docker compose up --build
+#   3. open http://localhost:8000
+services:
+  workbench:
+    build: ./webapp
+    image: math-buddy-workbench
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/meta')"]
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+      retries: 3

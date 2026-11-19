@@ -1,0 +1,14 @@
+# Python / Jupyter
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Large / downloadable data (source: https://github.com/Jakobovski/free-spoken-digit-dataset)
+free-spoken-digit-dataset/
+
+# Generated model file (>100 MB); recreate with: python webapp/export_models.py
+webapp/models/*.pkl
+
+# OS
+.DS_Store

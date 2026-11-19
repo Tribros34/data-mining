@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Math Buddy – ITS Midterm Report</title>
+<style>
+  @page { size: A4; margin: 18mm 17mm 18mm 17mm; }
+  body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 10.3pt; line-height: 1.45; color: #1b1b1b; }
+  h1 { font-size: 22pt; margin: 0 0 4mm; }
+  h2 { font-size: 15pt; margin: 9mm 0 3mm; padding-bottom: 1.5mm; border-bottom: 1.5px solid #2f6db5; color: #173a63; page-break-after: avoid; }
+  h3 { font-size: 11.8pt; margin: 6mm 0 2mm; color: #173a63; page-break-after: avoid; }
+  h4 { font-size: 10.5pt; margin: 4mm 0 1.5mm; page-break-after: avoid; }
+  p { margin: 0 0 2.4mm; text-align: justify; }
+  ul, ol { margin: 0 0 2.6mm; padding-left: 6mm; }
+  li { margin-bottom: 0.8mm; }
+  table { border-collapse: collapse; width: 100%; margin: 2mm 0 4mm; font-size: 9pt; page-break-inside: avoid; }
+  th, td { border: 1px solid #b9c3cf; padding: 1.3mm 2mm; text-align: left; vertical-align: top; }
+  th { background: #e8eef6; }
+  code { font-family: Menlo, Consolas, monospace; font-size: 8.6pt; background: #f2f4f7; padding: 0 1px; }
+  pre { font-family: Menlo, Consolas, monospace; font-size: 8pt; background: #f5f7fa; border: 1px solid #dde3ea; border-left: 3px solid #2f6db5; padding: 2mm 3mm; white-space: pre-wrap; margin: 1.5mm 0 3mm; page-break-inside: avoid; }
+  pre.out { border-left-color: #2e8b3a; background: #f6faf6; }
+  figure { margin: 3mm 0 4mm; text-align: center; page-break-inside: avoid; }
+  figure img { max-width: 100%; }
+  figcaption { font-size: 8.8pt; color: #444; margin-top: 1.5mm; }
+  .cover { text-align: center; padding-top: 30mm; page-break-after: always; }
+  .cover .sub { font-size: 13pt; color: #444; margin-bottom: 14mm; }
+  .cover table { width: 75%; margin: 8mm auto; font-size: 10.5pt; }
+  .note { background: #fff8e6; border: 1px solid #e8cf8a; padding: 2mm 3mm; margin: 2mm 0 4mm; font-size: 9.4pt; page-break-inside: avoid; }
+  .box { background: #f2f7fd; border: 1px solid #c4d7ef; padding: 2mm 3mm; margin: 2mm 0 4mm; page-break-inside: avoid; }
+  .tag { display: inline-block; font-size: 8.5pt; padding: 0 2mm; border-radius: 2mm; color: #fff; }
+  .sup { background: #2f6db5; } .uns { background: #c46a12; }
+  .pb { page-break-before: always; }
+  .toc { columns: 2; font-size: 9.8pt; }
+  .toc div { margin-bottom: 1mm; }
+  .w60 { width: 60%; } .w70 { width: 70%; } .w80 { width: 80%; } .w45 { width: 45%; } .w50 { width: 50%; }
+</style>
+</head>
+<body>
+
+<!-- ============================== COVER ============================== -->
+<div class="cover">
+  <h1>Math Buddy</h1>
+  <div class="sub">An Intelligent Tutoring System for Elementary School Mathematics<br>
+  expressed as Supervised and Unsupervised Learning Tasks</div>
+  <p style="text-align:center">Machine Learning – Midterm Project Report</p>
+  <table>
+    <tr><th>Name</th><th>Last name</th><th>Student ID</th></tr>
+    <tr><td>TBD</td><td>TBD</td><td>TBD</td></tr>
+    <tr><td>TBD</td><td>TBD</td><td>TBD</td></tr>
+    <tr><td>TBD</td><td>TBD</td><td>TBD</td></tr>
+  </table>
+  <p style="text-align:center; font-size:9.5pt; color:#555">Submitted files: <code>math_buddy_its.ipynb</code> (code + outputs),
+  <code>outputs/</code> (figures), <code>diagram/block_diagram.svg</code>, <code>test_drawings/</code>, <code>requirements.txt</code>, this report.</p>
+  <p style="text-align:center; font-size:9.5pt; color:#555">November 2026</p>
+</div>
+
+<!-- ============================== TOC ============================== -->
+<h2 style="margin-top:0">Contents</h2>
+<div class="toc">
+  <div>1. Introduction</div>
+  <div>2. Requirements of an intelligent tutoring system</div>
+  <div>3. Interaction scenario</div>
+  <div>4. Block diagram</div>
+  <div>5. Dataset and output structure of every block</div>
+  <div>6. Implementation overview (common setup and rules)</div>
+  <div>7. B3 – Handwritten digit recognition</div>
+  <div>8. B5a – Spoken digit recognition</div>
+  <div>9. B4 – Attention detection</div>
+  <div>10. B5b – Confidence detection</div>
+  <div>11. B1, B2 and sentiment – text blocks</div>
+  <div>12. B6 – Mastery percentage over time</div>
+  <div>13. B7 – Error type discovery</div>
+  <div>14. B8 – Student profiles</div>
+  <div>15. How the blocks work together</div>
+  <div>16. Limitations and future work</div>
+  <div>17. Conclusion</div>
+  <div>18. References and data sources</div>
+</div>
+
+<!-- ============================== 1 ============================== -->
+<h2>1. Introduction</h2>
+<p>An <b>intelligent tutoring system (ITS)</b> is software that teaches a student one-to-one, the way a good private teacher
+would: it observes the student, estimates what the student already knows, chooses the next exercise accordingly, and
+reports progress to the teacher. Every one of these abilities is a prediction or a grouping problem, so an ITS can be
+described as a set of machine learning tasks.</p>
+<p>Our system, <b>Math Buddy</b>, is a tablet tutor for elementary school mathematics (addition, subtraction,
+multiplication, division and fractions). It interacts with the child through three modalities – <b>text</b> (chat),
+<b>visual</b> (handwriting on the screen, front camera) and <b>audio</b> (spoken answers, tone of voice). We split its
+functionality into nine blocks; each block is exactly one supervised or one unsupervised learning task. All blocks are
+implemented in one Jupyter notebook, <code>math_buddy_its.ipynb</code>, in Python with scikit-learn. This report explains
+each section of the code and each section of its output.</p>
+
+<!-- ============================== 2 ============================== -->
+<h2>2. Requirements of an intelligent tutoring system</h2>
+<p>The table lists what we expect from an ITS for young children and which block of Math Buddy satisfies each requirement.</p>
+<table>
+<tr><th style="width:4%">#</th><th style="width:44%">Requirement</th><th>How Math Buddy fulfils it</th></tr>
+<tr><td>R1</td><td><b>Know the learner as a person</b> – interests and attitude, to keep a child motivated</td><td>B1 detects interests (sports, animals, food, games) and the sentiment of chat messages; word problems are built around a positive interest.</td></tr>
+<tr><td>R2</td><td><b>Find the topics the learner struggles with</b></td><td>B2 detects the struggle topic from what the child writes; B6 confirms it from the answers.</td></tr>
+<tr><td>R3</td><td><b>Natural, child-friendly input</b> – a 3rd grader should not need a keyboard</td><td>B3 reads digits written with a finger; B5a recognises spoken digits. Each is a fallback for the other.</td></tr>
+<tr><td>R4</td><td><b>Monitor engagement</b> and react to it</td><td>B4 classifies attention from camera features (attentive / distracted / tired) and the tutor reacts (message, break).</td></tr>
+<tr><td>R5</td><td><b>Distinguish knowing from guessing</b></td><td>B5b classifies a spoken answer as confident or hesitant; B6 uses the hesitation history.</td></tr>
+<tr><td>R6</td><td><b>Measure the percentage of accurately learning each subject and its variation over time</b> (requirement from the previous assignment)</td><td>B6 estimates mastery (%) per topic after every answer and keeps it as a time series.</td></tr>
+<tr><td>R7</td><td><b>Diagnose why answers are wrong</b>, not only how often</td><td>B7 discovers error types (forgotten carry, careless slip, wrong operation, fraction rule) without labels.</td></tr>
+<tr><td>R8</td><td><b>Extract learning patterns to develop better teaching mechanisms</b> (requirement from the previous assignment)</td><td>B8 groups students into learning profiles and attaches a teaching recommendation to each profile.</td></tr>
+<tr><td>R9</td><td><b>Adaptivity</b> – choose the next question from the estimated knowledge</td><td>Question selection uses B1, B2 and B6 (weak topics, start easy when the sentiment is negative).</td></tr>
+<tr><td>R10</td><td><b>Reporting to the teacher</b></td><td>Teacher dashboard: B6 mastery curves, B7 error types per week, B8 profile and recommendations.</td></tr>
+<tr><td>R11</td><td><b>Reliability, privacy and robustness</b> – work with a new child, missing camera data, an unknown voice</td><td>Train/test split by student (B6), missing-value imputation (B4), voice calibration (B5a.9), real-drawing test (B3.8–B3.9).</td></tr>
+</table>
+
+<!-- ============================== 3 ============================== -->
+<h2>3. Interaction scenario</h2>
+<p><b>Can</b> is a 3rd grader who uses the Math Buddy app on a tablet after school. One session looks like this:</p>
+<ol>
+<li><b>Chat (text).</b> Math Buddy asks <i>"What did you do today?"</i> – Can writes <i>"I played football with my friends, it was awesome!"</i>.
+B1 detects the interest <b>sports</b> with a <b>positive</b> sentiment, so the next word problems are about football
+(<i>"Your team scored 23 goals, then 19 more…"</i>). Had he written <i>"I hate football"</i>, the interest would not be used.</li>
+<li><b>Struggle topic (text).</b> <i>"Which topic is hard for you?"</i> – <i>"I don't understand multiplication at all"</i>.
+B2 returns <b>multiplication</b> with a <b>negative</b> sentiment → the tutor starts multiplication with easy questions.</li>
+<li><b>Answer by handwriting (visual).</b> Can writes "7" with his finger; B3 reads the digit and the answer is graded.</li>
+<li><b>Answer by voice (audio).</b> Next time he says <i>"nine!"</i>; B5a recognises the digit and B5b judges from his voice
+whether he is <b>confident</b> or <b>hesitant</b> (<i>"Hmm… nine?"</i>).</li>
+<li><b>Attention (visual).</b> His friends are playing outside and he looks out of the window. The front camera features go
+to B4, which returns <b>distracted</b>; the tutor shows a short message (<i>"Hey Can, the ball is here! ⚽"</i>). If B4 says
+<b>tired</b>, the tutor suggests a break.</li>
+<li><b>Mastery.</b> After every answer B6 updates Can's mastery percentage for every topic; the values are stored as a time series.</li>
+<li><b>Weekend teacher dashboard.</b> The teacher sees Can's mastery curves (B6), the types of his mistakes per week – e.g.
+he often <b>forgets to carry</b> (B7) – and his learning profile with a recommendation (B8).</li>
+</ol>
+
+<!-- ============================== 4 ============================== -->
+<h2>4. Block diagram</h2>
+<p>Every rectangle with a solid border is a learning task: <span class="tag sup">blue</span> = supervised,
+<span class="tag uns">orange</span> = unsupervised. Dashed boxes are ordinary application logic (no learning). The six
+perception blocks on top are grouped by modality. Their outputs flow into B6 (mastery), whose answer log feeds the two
+unsupervised blocks B7 and B8; the results reach the teacher dashboard.</p>
+<figure><img src="../diagram/block_diagram.svg" style="width:100%">
+<figcaption>Figure 1 – Block diagram of Math Buddy (also in <code>diagram/block_diagram.svg</code>).</figcaption></figure>
+
+<table>
+<tr><th>Block</th><th>Task</th><th>Learning type</th><th>Modality</th><th>Data</th><th>Model</th></tr>
+<tr><td>B1</td><td>Interest detection (+ sentiment)</td><td>Supervised, 4-class (+3-class)</td><td>Text</td><td>Synthetic</td><td>TF-IDF + Logistic Regression</td></tr>
+<tr><td>B2</td><td>Struggle topic detection (+ sentiment)</td><td>Supervised, 5-class (+3-class)</td><td>Text</td><td>Synthetic</td><td>TF-IDF + Logistic Regression</td></tr>
+<tr><td>B3</td><td>Handwritten digit recognition</td><td>Supervised, 10-class</td><td>Visual</td><td><b>Real</b> (load_digits, MNIST)</td><td>LogReg (8×8), Random Forest (28×28)</td></tr>
+<tr><td>B4</td><td>Attention detection</td><td>Supervised, 3-class</td><td>Visual</td><td>Synthetic</td><td>Imputer + Random Forest</td></tr>
+<tr><td>B5a</td><td>Spoken digit recognition</td><td>Supervised, 10-class</td><td>Audio</td><td><b>Real</b> (FSDD)</td><td>MFCC + Logistic Regression</td></tr>
+<tr><td>B5b</td><td>Confidence detection</td><td>Supervised, binary</td><td>Audio</td><td>Synthetic</td><td>Logistic Regression</td></tr>
+<tr><td>B6</td><td>Mastery percentage over time</td><td>Supervised, probability</td><td>Combined</td><td>Simulation</td><td>ColumnTransformer + Logistic Regression</td></tr>
+<tr><td>B7</td><td>Error type discovery</td><td>Unsupervised, clustering</td><td>Combined</td><td>Simulation</td><td>Feature design + K-Means</td></tr>
+<tr><td>B8</td><td>Student profiles</td><td>Unsupervised, clustering</td><td>Combined</td><td>Simulation</td><td>K-Means</td></tr>
+</table>
+
+<!-- ============================== 5 ============================== -->
+<h2>5. Dataset and output structure of every block</h2>
+<p>This section answers the two questions of the assignment: <i>what are the attributes of the dataset fed to each block</i>,
+and <i>what is the structure of the output of each block</i>. For a supervised block, one row is one training example with a label;
+for an unsupervised block there is no label.</p>
+
+<table>
+<tr><th style="width:7%">Block</th><th style="width:15%">One row =</th><th style="width:40%">Input attributes (type / range)</th><th style="width:12%">Label</th><th>Output structure</th></tr>
+<tr><td>B1</td><td>one chat message</td><td><code>message</code> – free English text (turned into a TF-IDF vector)</td><td><code>interest</code>, <code>sentiment</code></td><td><code>{interest ∈ {sports, animals, food, games}, probability, sentiment ∈ {positive, neutral, negative}, use_for_problems: bool}</code></td></tr>
+<tr><td>B2</td><td>one message about math</td><td><code>message</code> – free English text</td><td><code>topic</code>, <code>sentiment</code></td><td><code>{topic ∈ {addition, subtraction, multiplication, division, fractions}, probability, sentiment, start_easy: bool}</code></td></tr>
+<tr><td>B3</td><td>one handwritten digit image</td><td><code>pixel_1 … pixel_64</code> – ink 0–16 (8×8 image); improved model: 784 pixels 0–255 (28×28 MNIST)</td><td><code>digit</code> 0–9</td><td><code>{digit: 0–9, probability: 0–1}</code></td></tr>
+<tr><td>B4</td><td>one 10-second camera window</td><td><code>screen_gaze_ratio</code> (0–1), <code>head_angle</code> (degrees 0–60), <code>blink_rate</code> (per minute); values may be missing</td><td><code>state</code></td><td><code>{state ∈ {attentive, distracted, tired}, probabilities: {state: p}}</code></td></tr>
+<tr><td>B5a</td><td>one recording (.wav, 8 kHz)</td><td><code>mfcc_mean_1…20</code>, <code>mfcc_std_1…20</code> – 40 real numbers</td><td><code>digit</code> 0–9</td><td><code>{digit: 0–9, probability: 0–1}</code></td></tr>
+<tr><td>B5b</td><td>one spoken answer</td><td><code>speech_rate</code> (syllables/s), <code>pause_count</code> (integer), <code>response_delay</code> (s), <code>pitch_variation</code> (semitones)</td><td><code>state</code></td><td><code>{state ∈ {confident, hesitant}, p_hesitant: 0–1}</code></td></tr>
+<tr><td>B6</td><td>one answer of a student</td><td><code>topic</code> (one-hot), <code>difficulty</code> (1–3), <code>attempt_no</code>, <code>prev_correct_ratio</code>, <code>recent_correct_ratio</code>, <code>prev_hesitant_ratio</code> (from B5b), <code>attention</code> (one-hot, from B4); <code>student_id</code>, <code>timestamp</code> for ordering only</td><td><code>is_correct</code> (0/1)</td><td>P(correct) of one question; <code>b6_mastery()</code> → <code>{topic: mastery %}</code>; repeated over days → time series</td></tr>
+<tr><td>B7</td><td>one wrong answer</td><td><code>operation</code>, <code>correct_answer</code>, <code>given_answer</code> (from B3/B5a), <code>difference</code>, <code>ratio</code>, <code>needs_carry</code> → derived: <code>size_ratio_log</code>, <code>error_steps_log</code>, <code>diff_is_tens</code>, <code>same_denominator</code></td><td>none</td><td><code>cluster_id</code> 0–3 → <code>{error_type ∈ {forgot_carry, careless_slip, wrong_operation, fraction_rule}, hint}</code>; per student: share of each type and <code>characteristic_error</code></td></tr>
+<tr><td>B8</td><td>one student</td><td><code>avg_accuracy</code> (0–1), <code>learning_speed</code> (slope), <code>avg_attention</code> (0–1, from B4), <code>spoken_answer_ratio</code> (0–1), <code>characteristic_error</code> (one-hot, from B7)</td><td>none</td><td><code>profile_id</code> 0–3 → <code>{profile name, recommendations[], error hint}</code></td></tr>
+</table>
+
+<div class="note"><b>About the data.</b> B3 and B5a use real public datasets. For the other blocks no public dataset with
+children's data and exactly these attributes exists, so the notebook <b>generates synthetic data</b> with realistic, overlapping
+class distributions (otherwise every model would reach 100 %, which is unrealistic). In a real system the attributes would come
+from: the chat logs of the app (B1, B2), the front camera through a face-landmark tool such as MediaPipe Face Mesh or OpenFace (B4),
+the microphone through librosa (B5b), and the app's own answer log (B6–B8). Section 18 lists public datasets each block could use.</div>
+
+<!-- ============================== 6 ============================== -->
+<h2>6. Implementation overview</h2>
+<h3>6.1 Notebook structure</h3>
+<p>The notebook starts with a header (title, group members, overview table of the blocks) and a <b>Setup</b> cell, followed by one
+section per block. Every supervised block follows the same template, so a reader always knows where to look:</p>
+<p style="text-align:center"><b>1. Data → 2. Preprocessing → 3. Train/test split → 4. Model → 5. Evaluation → 6. Example prediction (Can) → 7. Block function</b></p>
+<p>The unsupervised blocks replace the split with <i>choosing the number of clusters</i> and evaluation by <i>interpreting</i> the clusters.
+The blocks appear in the order B3, B5a, B4, B5b, B1/B2, B6, B7, B8 – B6 needs the outputs of B4 and B5b, B7 needs B6, and B8 needs B6 and B7.</p>
+
+<h3>6.2 Setup cell</h3>
+<pre>RANDOM_STATE = 42                 # same random choices on every run
+OUTPUT_DIR = "outputs"            # folder for the report figures
+def save_figure(fig, filename): ...   # saves every plot as PNG (150 dpi)</pre>
+<p>The setup imports numpy, pandas, matplotlib and scikit-learn. A fixed <code>RANDOM_STATE</code> makes every run produce the same
+data, splits and models (reproducibility). <code>save_figure</code> writes every plot to <code>outputs/</code>; all figures in this report
+come from there. Output: <code>Setup complete.</code></p>
+
+<h3>6.3 Rules applied in every block</h3>
+<ul>
+<li><b>Split first, then preprocess.</b> Scalers, imputers and TF-IDF vocabularies are placed inside a scikit-learn <code>Pipeline</code>.
+Calling <code>fit</code> on the pipeline fits them on the training data only; the test data is only <code>transform</code>ed.
+This prevents <b>data leakage</b> (information about the test set influencing training).</li>
+<li><b>Scale only numeric columns</b>; one-hot (0/1) columns are not scaled (<code>ColumnTransformer</code> in B6 and B8).</li>
+<li><b>Stratified splits</b> (<code>stratify=y</code>) keep the class proportions equal in training and test data.</li>
+<li><b>Always scale before K-Means</b>, because K-Means uses distances and the feature with the largest numbers would dominate.</li>
+<li><b>Block functions.</b> Every block ends with one function with a clear input and output (e.g. <code>b4_detect_attention(gaze, head, blink)</code>).
+Other blocks use each other only through these functions.</li>
+</ul>
+
+<h3>6.4 Evaluation measures used</h3>
+<ul>
+<li><b>Accuracy</b> – share of correct predictions on the test set.</li>
+<li><b>Precision / recall / F1</b> (classification report) – per class: how many predicted X were really X (precision), how many real X were found (recall), and their harmonic mean (F1).</li>
+<li><b>Confusion matrix</b> – rows = true class, columns = predicted class; off-diagonal cells are mistakes.</li>
+<li><b>Training vs. test accuracy</b> – a large gap would indicate overfitting (memorising).</li>
+<li><b>ROC AUC and calibration</b> (B6) – ranking quality and whether predicted probabilities match observed frequencies.</li>
+<li><b>Inertia, silhouette, Adjusted Rand Index</b> (B7, B8) – see Section 13.</li>
+</ul>
+
+<!-- ============================== 7 B3 ============================== -->
+<h2>7. B3 – Handwritten digit recognition <span class="tag sup">Supervised · Visual</span></h2>
+<p><b>Role:</b> Can writes his answer with his finger; the tutor must read the digit to grade the answer.</p>
+
+<h3>B3.1 Data</h3>
+<pre>digits = load_digits()
+pixel_columns = [f"pixel_{i}" for i in range(1, 65)]
+b3_df = pd.DataFrame(digits.data, columns=pixel_columns); b3_df["digit"] = digits.target</pre>
+<p><b>Code:</b> scikit-learn's <code>load_digits</code> contains 1,797 real handwritten digits, each an 8×8 image. Every image is flattened
+row by row into 64 numbers and stored with our column names <code>pixel_1 … pixel_64</code> plus the label <code>digit</code>.</p>
+<p><b>Output:</b> shape (1797, 65); about 180 examples per digit (174–183), so the classes are balanced. The first rows show pixel
+values between 0 (white) and 16 (full ink).</p>
+<figure><img class="w60" src="../outputs/b3_sample_digits.png"><figcaption>Figure 2 – One sample of every digit (8×8 pixels).</figcaption></figure>
+
+<h3>B3.2 Preprocessing and B3.3 Split</h3>
+<p><b>Code:</b> checks missing values and the value range, separates <code>X_b3</code> (64 pixels) and <code>y_b3</code> (label), and calls
+<code>train_test_split(..., test_size=0.2, stratify=y_b3, random_state=RANDOM_STATE)</code>.
+<b>Output:</b> 0 missing values, range 0–16; training set (1437, 64), test set (360, 64).</p>
+
+<h3>B3.4 Model</h3>
+<pre>b3_model = Pipeline([("scaler", StandardScaler()),
+                     ("classifier", LogisticRegression(max_iter=2000, random_state=RANDOM_STATE))])
+b3_model.fit(X_b3_train, y_b3_train)</pre>
+<p>The pipeline standardises each pixel (mean 0, standard deviation 1, learned on training data) and trains a multi-class
+Logistic Regression, which learns one weight per pixel and digit and outputs a probability for each of the 10 digits.
+<code>max_iter=2000</code> gives the optimiser enough iterations to converge.</p>
+
+<h3>B3.5 Evaluation</h3>
+<pre class="out">B3 test accuracy: 0.972
+digit 1: precision 0.89 recall 0.89 | digit 8: precision 0.89 recall 0.89 | all other digits ≥ 0.97</pre>
+<p><b>Output:</b> 97.2 % of the 360 unseen test images are read correctly. The only weaker digits are 1 and 8, which the
+confusion matrix shows are mostly confused with each other (four 8s read as 1, two 1s read as 8) – at 8×8 resolution a slanted 1 and a thin 8 share many pixels.</p>
+<figure><img class="w45" src="../outputs/b3_confusion_matrix.png"><figcaption>Figure 3 – B3 confusion matrix on the test set.</figcaption></figure>
+
+<h3>B3.6 Example prediction and B3.7 block function</h3>
+<p>The tutor asks <i>"3 players are on the bench and 4 more join. How many players now?"</i>. Can's handwriting is simulated with an
+unseen test image of a 7. <b>Output:</b> <code>{'digit': 7, 'probability': 0.999}</code> → answer CORRECT; top-3 candidates 7 (0.999), 3, 2.
+The block function <code>b3_read_handwriting(pixels)</code> wraps this: input 64 pixel values, output <code>{digit, probability}</code>.</p>
+
+<h3>B3.8 Limitation found in manual testing</h3>
+<p>We tested the model on digits that were <b>drawn</b> rather than taken from the dataset: three digits typed on an 8×8 grid and a real
+6 drawn with a mouse (<code>test_drawings/drawn_six.png</code>), shrunk to 8×8 in two ways.
+<b>Output:</b> all five are misread (thin 1 → 3, small 4 → 8, thin 0 → 4, real 6 → 4 or 5), several with probability above 0.99.</p>
+<figure><img class="w80" src="../outputs/b3_limitation_drawings.png"><figcaption>Figure 4 – The 8×8 model on drawings that do not look like the training images.</figcaption></figure>
+<p><b>Interpretation:</b> (1) <b>distribution shift</b> – load_digits images are soft, grey and thick, real strokes are thin and crisp, so a high
+test accuracy does not guarantee good results in practice, and a high probability is not a guarantee either; (2) <b>8×8 is too small</b> –
+the loop of the 6 disappears.</p>
+
+<h3>B3.9 Improved model – MNIST (28×28)</h3>
+<p><b>Code:</b> <code>fetch_openml("mnist_784", parser="liac-arff")</code> loads MNIST (70,000 digits by ~500 writers, 28×28 pixels 0–255) with the
+official split of 60,000 training and 10,000 test images. A <code>RandomForestClassifier(n_estimators=100)</code> is trained (trees need no
+scaling and handle 784 raw pixels well). <code>drawing_to_mnist(ink)</code> prepares any drawing exactly like MNIST: crop → thicken the
+line by 8 % → fit into a 20×20 box → move the centre of mass to the middle of a 28×28 image. <code>b3_read_drawing(ink)</code> is the B3 block
+function used for real drawings.</p>
+<pre class="out">B3 (MNIST) test accuracy: 0.969   (8×8 load_digits model: 0.972)
+8×8 model  : {'digit': 5, 'probability': 0.495}
+MNIST model: {'digit': 6, 'probability': 0.75}</pre>
+<p><b>Output:</b> similar test accuracy (96.9 %), but the real drawing of the 6 is now read correctly, because its hole survives at 28×28.</p>
+<figure><img class="w60" src="../outputs/b3_mnist_vs_8x8.png"><figcaption>Figure 5 – Same drawing at two resolutions.</figcaption></figure>
+
+<!-- ============================== 8 B5a ============================== -->
+<h2>8. B5a – Spoken digit recognition <span class="tag sup">Supervised · Audio</span></h2>
+<p><b>Role:</b> instead of writing, Can can say his answer aloud; the tutor recognises the spoken digit.</p>
+
+<h3>B5a.1 Data</h3>
+<pre>def extract_mfcc_features(wav_path):
+    signal, sr = librosa.load(wav_path, sr=8000)
+    mfcc = librosa.feature.mfcc(y=signal, sr=sr, n_mfcc=20, n_fft=512)   # (20, n_frames)
+    return np.concatenate([mfcc.mean(axis=1), mfcc.std(axis=1)])        # 40 numbers</pre>
+<p><b>Code:</b> the Free Spoken Digit Dataset (FSDD) contains 3,000 real English recordings: 6 speakers × 10 digits × 50 repetitions.
+The label is the first character of the file name (<code>9_george_3.wav</code> → 9). A recording is a long list of air-pressure values with a
+different length each time. <b>MFCCs</b> (Mel-frequency cepstral coefficients) describe the shape of the sound spectrum in short frames,
+similar to how the ear hears; each frame gives 20 numbers. Taking the <b>mean</b> and <b>standard deviation</b> of every coefficient over all
+frames gives a fixed vector of 40 features per recording.</p>
+<p><b>Output:</b> table of shape (3000, 43) – 40 features, <code>digit</code>, <code>speaker</code> and <code>file_name</code> (speaker and file name are only
+kept for analysis); 300 recordings per digit and 500 per speaker.</p>
+<figure><img class="w60" src="../outputs/b5a_waveform_mfcc.png"><figcaption>Figure 6 – The sound wave of "nine" and its MFCC matrix.</figcaption></figure>
+
+<h3>B5a.2–B5a.4 Preprocessing, split, model</h3>
+<p><b>Output of preprocessing:</b> no missing values; the feature ranges differ strongly (<code>mfcc_mean_1</code> from −695 to −244, <code>mfcc_std_20</code>
+from 0.6 to 28), so <b>StandardScaler</b> is required. 80/20 stratified split: 2,400 training and 600 test recordings. The model is the same
+pipeline as in B3: <code>StandardScaler → LogisticRegression(max_iter=3000)</code>.</p>
+
+<h3>B5a.5 Evaluation</h3>
+<pre class="out">B5a test accuracy: 0.915     (digit 4: F1 1.00 ... digit 6: F1 0.85, digit 3: F1 0.86)</pre>
+<p>91.5 % of the test recordings are recognised. "Four" is always recognised correctly, while "three" and "six" are the hardest digits (F1 0.86 and 0.85).</p>
+<figure><img class="w45" src="../outputs/b5a_confusion_matrix.png"><figcaption>Figure 7 – B5a confusion matrix.</figcaption></figure>
+
+<h3>B5a.6–B5a.7 Example and block function</h3>
+<p>Tutor: <i>"Your team scored 4 goals in the first half and 5 in the second. How many in total?"</i> – Can says "nine" (test recording
+<code>9_jackson_44.wav</code>). <b>Output:</b> <code>{'digit': 9, 'probability': 0.944}</code> → CORRECT. Block function:
+<code>b5a_recognize_speech(wav_path)</code> → <code>{digit, probability}</code>.</p>
+
+<h3>B5a.8 Speaker-independent evaluation (a limitation)</h3>
+<p>The random split puts recordings of the <i>same six speakers</i> into training and test data, so the model already "knows" every test voice.
+Can's voice, however, is new. <code>LeaveOneGroupOut</code> trains on 5 speakers and tests on the sixth, for every speaker.</p>
+<pre class="out">unseen speaker: george 0.252  jackson 0.550  lucas 0.434  nicolas 0.320  theo 0.702  yweweler 0.718
+Average accuracy on an unseen speaker: 0.496  (random split: 0.915)</pre>
+<p><b>Interpretation:</b> on an unknown voice the accuracy halves. Six speakers are far too few to generalise to a child's voice.</p>
+
+<h3>B5a.9 Personalisation – voice calibration</h3>
+<p><b>Idea:</b> on the first day the tutor plays <i>"Say each number after me!"</i>. These <i>k</i> recordings per digit of the new student are added
+to the training data. <b>Code:</b> every speaker in turn plays "Can"; the training data is the other 5 speakers + <i>k</i> calibration recordings per
+digit; the test data is the remaining recordings of the new speaker (calibration recordings are never tested – no leakage).</p>
+<table class="w70" style="margin-left:auto;margin-right:auto">
+<tr><th>Calibration recordings per digit (k)</th><td>0</td><td>1</td><td>2</td><td>3</td><td>5</td><td>10</td></tr>
+<tr><th>Average accuracy on the new speaker</th><td>0.496</td><td>0.612</td><td>0.658</td><td>0.699</td><td>0.755</td><td>0.821</td></tr>
+</table>
+<figure><img class="w60" src="../outputs/b5a_personalization.png"><figcaption>Figure 8 – Effect of voice calibration (thin lines: speakers; black: average).</figcaption></figure>
+<p><b>Interpretation:</b> 30 recordings (≈ 1 minute, k = 3) raise the accuracy from 50 % to 70 %; 100 recordings reach 82 %. A short calibration game
+is therefore part of the design, and the B8 profile "Prefers speaking" recommends it.</p>
+
+<!-- ============================== 9 B4 ============================== -->
+<h2>9. B4 – Attention detection <span class="tag sup">Supervised · Visual</span></h2>
+<p><b>Role:</b> every few seconds the front camera decides whether Can is attentive, distracted or tired; the tutor reacts and B6 uses the state.</p>
+
+<h3>B4.1 Data (synthetic)</h3>
+<p><b>Code:</b> <code>generate_attention_data</code> draws 500 rows per state from normal distributions around an assumed "signature":</p>
+<table class="w80" style="margin-left:auto;margin-right:auto">
+<tr><th>State</th><th>screen_gaze_ratio</th><th>head_angle</th><th>blink_rate</th></tr>
+<tr><td>attentive</td><td>~0.85</td><td>~6°</td><td>~15 / min</td></tr>
+<tr><td>distracted</td><td>~0.45</td><td>~25° (looking away)</td><td>~17 / min</td></tr>
+<tr><td>tired</td><td>~0.65</td><td>~15° (head drooping)</td><td>~26 / min (high)</td></tr>
+</table>
+<p>Values are clipped to physically possible ranges, and about 3 % of the values are set to missing (NaN) to imitate moments when the camera
+loses the face. <b>Output:</b> (1500, 4), 500 rows per state; the group averages match the signatures (e.g. attentive gaze 0.85, tired blink 26.08).</p>
+<figure><img class="w80" src="../outputs/b4_data_scatter.png"><figcaption>Figure 9 – Synthetic attention data; the classes overlap, as in reality.</figcaption></figure>
+
+<h3>B4.2 Preprocessing</h3>
+<p><b>Output:</b> missing values per column: gaze 50, head 41, blink 45. They are filled with the <b>median</b> of the training data by
+<code>SimpleImputer(strategy="median")</code> inside the pipeline. <b>No scaling</b>: a Random Forest asks threshold questions
+(<i>"gaze &lt; 0.6?"</i>), whose answers do not change when a feature is rescaled.</p>
+
+<h3>B4.3–B4.4 Split and model</h3>
+<pre>b4_model = Pipeline([("imputer", SimpleImputer(strategy="median")),
+                     ("classifier", RandomForestClassifier(n_estimators=200, max_depth=6, random_state=RANDOM_STATE))])</pre>
+<p>Split: 1,200 training and 300 test windows. A <b>decision tree</b> classifies by a sequence of yes/no questions learned from the data;
+a single deep tree tends to memorise. A <b>Random Forest</b> trains 200 trees, each on a bootstrap sample of the rows and with a random subset of
+features at every question, and lets them vote; the share of votes is the probability. <code>max_depth=6</code> limits memorisation.</p>
+
+<h3>B4.5 Evaluation</h3>
+<pre class="out">Training accuracy: 0.946   Test accuracy: 0.897   Gap: 0.049 (small gap -> no strong overfitting)
+attentive F1 0.96 | distracted F1 0.88 | tired F1 0.86
+Feature importance: screen_gaze_ratio 0.418, blink_rate 0.299, head_angle 0.283</pre>
+<p><b>Interpretation:</b> 89.7 % test accuracy with only a small gap to the training accuracy. "Attentive" is easy; distracted and tired are
+sometimes confused because both have medium gaze and head angle. Gaze is the most important feature; blink rate is what separates tired from distracted.</p>
+<figure><img class="w45" src="../outputs/b4_confusion_matrix.png"> <img class="w45" src="../outputs/b4_feature_importance.png">
+<figcaption>Figure 10 – B4 confusion matrix (left) and feature importance (right).</figcaption></figure>
+
+<h3>B4.6–B4.7 Example and block function</h3>
+<pre class="out">Can looking out of the window -> distracted  (attentive 0.002, distracted 0.988, tired 0.011)
+Can focused on the problem    -> attentive   (0.981)
+Can sleepy after school       -> tired       (0.955)
+Camera lost the face (NaN)    -> attentive   (0.502, distracted 0.199, tired 0.300)</pre>
+<p><code>b4_detect_attention(screen_gaze_ratio, head_angle, blink_rate)</code> returns <code>{state, probabilities}</code> and the tutor reacts
+(<i>distracted</i> → short attention message, <i>tired</i> → 5-minute break). When the gaze value is missing it is replaced by the median, so the
+model sees an "average" child and is uncertain (≈ 50 %). We keep this simple behaviour; in a real system, losing the face for a long time
+could itself be a signal.</p>
+
+<!-- ============================== 10 B5b ============================== -->
+<h2>10. B5b – Confidence detection <span class="tag sup">Supervised · Audio</span></h2>
+<p><b>Role:</b> B5a decides <i>what</i> Can said; B5b decides <i>how</i> he said it. <i>"Nine!"</i> and <i>"Hmm… nine?"</i> are the same answer, but the
+second is probably a guess, i.e. weaker evidence of mastery. (This is paralinguistic analysis, not sentiment analysis of the words.)</p>
+
+<h3>B5b.1 Data (synthetic)</h3>
+<p><b>Code:</b> <code>generate_confidence_data(600, 400)</code> creates 600 confident and 400 hesitant answers (imbalanced, as children usually answer
+what they know). Assumed means – confident: 4.0 syllables/s, 0.5 pauses, 1.2 s delay, pitch variation 2.0; hesitant: 2.9, 2, 2.8 s, 3.0.
+<code>pause_count</code> is drawn from a <b>Poisson</b> distribution (whole numbers ≥ 0) and <code>response_delay</code> from a <b>log-normal</b>
+distribution (positive, long right tail). <b>Output:</b> (1000, 5); group means close to the assumptions.</p>
+<figure><img class="w80" src="../outputs/b5b_feature_distributions.png"><figcaption>Figure 11 – Feature distributions of confident and hesitant answers.</figcaption></figure>
+
+<h3>B5b.2–B5b.4 Preprocessing, split, model</h3>
+<p>No missing values. Features have different units (seconds, counts, semitones), so <code>StandardScaler</code> is used; it also makes the
+coefficients comparable. The stratified split keeps 40 % hesitant answers in both parts (800 / 200). The model is a binary Logistic Regression:
+P(hesitant) = 1 / (1 + e<sup>−(w1·speech_rate + w2·pause_count + w3·response_delay + w4·pitch_variation + b)</sup>); hesitant if ≥ 0.5.</p>
+
+<h3>B5b.5 Evaluation</h3>
+<pre class="out">Training accuracy: 0.931   Test accuracy: 0.935
+confident F1 0.95 | hesitant F1 0.92
+Coefficients (positive -> more hesitant): response_delay +2.734, pause_count +1.474,
+                                          pitch_variation +1.188, speech_rate -1.497</pre>
+<p><b>Interpretation:</b> 93.5 % test accuracy, no overfitting (training ≈ test). The longest thinking time before answering is the strongest sign of
+hesitation, followed by pauses; fast speech points to confidence.</p>
+<figure><img class="w45" src="../outputs/b5b_confusion_matrix.png"> <img class="w45" src="../outputs/b5b_coefficients.png">
+<figcaption>Figure 12 – B5b confusion matrix and coefficients.</figcaption></figure>
+
+<h3>B5b.6–B5b.7 Example and block function</h3>
+<pre class="out">"Nine!"          -> {'state': 'confident', 'p_hesitant': 0.003}
+"Hmm... nine?"   -> {'state': 'hesitant',  'p_hesitant': 1.0}</pre>
+<p><code>b5b_detect_confidence(speech_rate, pause_count, response_delay, pitch_variation)</code> → <code>{state, p_hesitant}</code>.</p>
+
+<!-- ============================== 11 B1 B2 ============================== -->
+<h2>11. B1, B2 and sentiment – text blocks <span class="tag sup">Supervised · Text</span></h2>
+<p><b>Role:</b> at the start of a session the tutor chats with Can. B1 finds his <b>interest</b> (for personalised word problems) and B2 the math
+<b>topic</b> he struggles with. Both also return the <b>sentiment</b> of the message: <i>"I love football"</i> and <i>"I hate football"</i> are both
+about sports, but only the first should be used for word problems.</p>
+
+<h3>11.1 Text data (synthetic)</h3>
+<p><b>Code:</b> no public dataset of children's chat messages with these labels exists, so messages are generated from <b>templates and word pools</b>.
+B1 has 15 items per interest (e.g. <i>("football", "played football")</i>), B2 has 10 phrases per topic (<i>"the times tables"</i>,
+<i>"borrowing in subtraction"</i>), and ~16 templates per sentiment. Variable slots (when, with whom, openers such as <i>"Guess what?"</i>, endings such as
+<i>":)"</i>) make every template produce many sentences. To keep the task realistic:</p>
+<ul>
+<li>shared words between classes (<i>played</i> football / chess / with my cat); 15 % of B1 messages have a second sentence about another interest; 20 % of B2 messages mention a topic the child <i>can</i> do (<i>"I can do addition but division is so hard"</i>);</li>
+<li>random typos (a missing letter), negations (<i>"is not boring at all"</i>), and <b>8 % random sentiment label noise</b> (annotators disagree on short messages);</li>
+<li><b>duplicates are removed</b>, otherwise the same sentence could be in both training and test data (leakage).</li>
+</ul>
+<pre class="out">B1: generated 1600 messages, removed 3 duplicates -> 1597 unique
+B2: generated 1500 messages, removed 108 duplicates -> 1392 unique
+e.g. "Well, volleyball is not fun at all"  -> sports, negative
+     "Um, fractions of a pizza is so hard" -> fractions, negative</pre>
+
+<h3>11.2 B1 – Preprocessing with TF-IDF</h3>
+<p>A model needs numbers, so <b>TF-IDF</b> turns every message into a vector with one column per vocabulary word. TF = how often the word appears in the
+message; IDF = how rare the word is across all messages; TF-IDF = TF × IDF. Common words (<i>with</i>, <i>my</i>) get low weights, distinctive words
+(<i>football</i>, <i>pizza</i>) high weights. The notebook illustrates this on three messages: <i>football</i> 0.59, <i>pizza</i> 0.55, <i>cat</i> 0.66, while
+<i>my</i> and <i>with</i> get 0.33–0.39. The vectorizer is the first step of the pipeline, so the vocabulary and IDF weights are learned from training messages only.</p>
+
+<h3>11.3 B1 – Split, model and evaluation</h3>
+<pre>b1_model = Pipeline([("tfidf", TfidfVectorizer()),
+                     ("classifier", LogisticRegression(max_iter=1000, random_state=RANDOM_STATE))])</pre>
+<pre class="out">Training messages: 1277  Test messages: 320   Vocabulary size: 349
+Training accuracy: 0.934   Test accuracy: 0.884
+animals F1 0.87 | food F1 0.90 | games F1 0.90 | sports F1 0.88   (37 misclassified)</pre>
+<p><b>Interpretation:</b> 88.4 % test accuracy. The misclassified messages are the deliberately confusing ones, e.g. <i>"I hate puppies. Then I played
+basketball."</i> (true animals, predicted sports) – the second sentence about another interest wins. The top-words plot shows the model relies on the
+expected words (football, gymnastics, team for sports; fish, cat, puppies for animals). The word <i>my</i> is among the animal words
+because pets are mentioned as <i>my cat</i>, <i>my dog</i> – a pattern of the templates, not of the meaning.</p>
+<figure><img class="w45" src="../outputs/b1_confusion_matrix.png"><figcaption>Figure 13 – B1 confusion matrix.</figcaption></figure>
+<figure><img style="width:95%" src="../outputs/b1_top_words.png"><figcaption>Figure 14 – Words with the highest weight for each interest.</figcaption></figure>
+
+<h3>11.4 B2 – Struggle topic</h3>
+<p>Same pipeline (TF-IDF → Logistic Regression), 1,113 training and 279 test messages.</p>
+<pre class="out">Training accuracy: 0.930   Test accuracy: 0.892   (F1 0.88–0.92 for all five topics; 30 misclassified)</pre>
+<p>Most mistakes are messages with two topics, e.g. <i>"Long division is easy, but I cried during subtracting big numbers"</i> → predicted division
+(the model does not understand that <i>but</i> flips the meaning), or phrases that belong to two topics (<i>"repeated addition"</i> = multiplication).</p>
+<figure><img class="w45" src="../outputs/b2_confusion_matrix.png"><figcaption>Figure 15 – B2 confusion matrix.</figcaption></figure>
+
+<h3>11.5 Sentiment – the second output of B1 and B2</h3>
+<p><b>Code:</b> one 3-class model (positive / neutral / negative) is trained on all B1 and B2 messages (2,989 messages). TF-IDF on single words ignores word
+order, so in <i>"Chess is not boring"</i> the word <i>boring</i> points to negative. With <code>ngram_range=(1, 2)</code> TF-IDF also creates features for
+<b>pairs of neighbouring words</b> (bigrams, e.g. <i>"not boring"</i>, <i>"so boring"</i>). Both versions are compared.</p>
+<pre class="out">single words (1,1)         test accuracy: 0.893
+words + word pairs (1,2)   test accuracy: 0.905
+"Chess is so boring":  (1,1) -> positive (wrong)   (1,2) -> negative (correct)</pre>
+<p>The bigram version is kept as <code>sentiment_model</code> (negative F1 0.92, neutral 0.90, positive 0.89).</p>
+<figure><img class="w45" src="../outputs/sentiment_confusion_matrix.png"><figcaption>Figure 16 – Sentiment confusion matrix.</figcaption></figure>
+
+<h3>11.6 Block functions and examples</h3>
+<pre class="out">b1 "Today I played football with my friends, it was awesome!" -> sports 0.715, positive, use_for_problems True
+b1 "I hate football, it's so boring"                           -> sports 0.797, negative, use_for_problems False
+b1 "I played soccer today"                                     -> games 0.487, neutral   (wrong: 'soccer' unknown)
+b2 "I don't understand multiplication at all" -> multiplication 0.738, negative, start_easy True
+b2 "Can we practice dividing by 3?"           -> division 0.943, neutral, start_easy False</pre>
+<p><code>b1_analyze_message(msg)</code> → <code>{interest, probability, sentiment, use_for_problems}</code> (False if negative);
+<code>b2_analyze_message(msg)</code> → <code>{topic, probability, sentiment, start_easy}</code>. The word <i>soccer</i> was deliberately left out of the
+training data: TF-IDF ignores unknown words, so the prediction is wrong. A pretrained language model such as <b>DistilBERT</b> knows that
+<i>soccer ≈ football</i> and is the natural next step (Section 16).</p>
+
+<!-- ============================== 12 B6 ============================== -->
+<h2>12. B6 – Mastery percentage over time <span class="tag sup">Supervised · Combined</span></h2>
+<p><b>Role:</b> after every answer the tutor updates how well Can has learned each topic and keeps it as a time series (requirement R6).
+<b>Definition:</b> <i>mastery of a topic = the probability that the student answers a medium-difficulty question of that topic correctly while
+attentive.</i> This is <b>knowledge tracing</b>; our model, a Logistic Regression on the answer history, is known as Performance Factors Analysis.
+The label <code>is_correct</code> is free: the tutor knows it after every answer.</p>
+
+<h3>B6.1 Data – a student simulation</h3>
+<p><b>Code:</b> instead of random rows we <b>simulate students</b> (<code>make_student_profile</code>, <code>simulate_student</code>). Every student has a hidden
+skill per topic: the starting skill depends on the topic (fractions harder than addition) and the student's general ability; it <b>grows with
+practice</b> at a personal learning rate. An answer is correct with a probability depending on skill, difficulty and attention, plus <i>guess</i> (0.15)
+and <i>slip</i> (0.05, tripled when not attentive). Every student also has a personal distractibility (B4 state) and speech preference
+(<code>answer_mode</code>); hesitation (B5b) is recorded only for spoken answers and is more likely when the child does not know the answer.
+Schedule: day 0 = placement test (5 medium questions per topic), then 27 days with 8–12 questions (20 % of days skipped).</p>
+<pre class="out">Answers: 48047 | students: 200 | days: 28    Overall share of correct answers: 0.61
+addition 0.756, subtraction 0.709, multiplication 0.582, division 0.525, fractions 0.476</pre>
+<p>Because the simulation is ours, the hidden <code>true_mastery</code> is known at every moment – this allows checking the estimate against the truth.</p>
+
+<h3>B6.2 Preprocessing – history features from the past only</h3>
+<p><code>add_history_features(log)</code> groups the answers by student and topic and uses <code>shift()</code> so that a row never sees its own result (no leakage):</p>
+<ul>
+<li><code>attempt_no</code> – questions of this topic answered before;</li>
+<li><code>prev_correct_ratio</code> – smoothed share correct so far, (correct + 1) / (answers + 2), so a new student starts at 0.5 instead of 0/0;</li>
+<li><code>recent_correct_ratio</code> – the same over the last 5 answers (recent progress);</li>
+<li><code>prev_hesitant_ratio</code> – share of hesitant spoken answers so far (from B5b). Confidence enters as <b>history</b>: B5b measures it while the
+child answers, so using the current answer's confidence to predict that same answer would leak label information.</li>
+</ul>
+<p><b>Output:</b> e.g. student S000's first multiplication answers: attempt 0 → ratio 0.500, after one wrong answer → 0.333, after a correct one → 0.500.</p>
+
+<h3>B6.3 Split by student</h3>
+<p><code>GroupShuffleSplit</code> splits the <b>students</b>, not the rows: 160 students (38,531 answers) for training, 40 unseen students (9,516 answers)
+for testing, 0 students in both. A random row split would let the model "know" the test students.</p>
+
+<h3>B6.4 Model</h3>
+<pre>b6_model = Pipeline([("prepare", ColumnTransformer([
+                          ("numeric", StandardScaler(), B6_NUMERIC),
+                          ("categorical", OneHotEncoder(handle_unknown="ignore"), ["topic", "attention"])])),
+                     ("classifier", LogisticRegression(max_iter=1000))])</pre>
+<p>Numeric columns are scaled; <code>topic</code> and <code>attention</code> are one-hot encoded and not scaled.</p>
+
+<h3>B6.5 Evaluation</h3>
+<pre class="out">Accuracy (threshold 0.5): 0.679   ROC AUC: 0.725   (always guessing 'correct': 0.599)
+Coefficients: attention_attentive +0.523, prev_correct_ratio +0.424, topic_addition +0.386, attempt_no +0.319,
+              ... attention_distracted -0.229, topic_fractions -0.259, difficulty -0.379</pre>
+<p><b>Interpretation:</b> predicting a single answer is inherently uncertain (guesses and slips), so 68 % accuracy is expected; AUC 0.725 shows the
+model ranks correct answers above wrong ones well. More important for a <i>percentage</i> is <b>calibration</b>: the points lie close to the diagonal,
+i.e. when the model says 70 %, about 70 % of the answers are correct. The coefficients have the expected signs: attention, past success, practice
+and easy topics increase the chance; difficulty, fractions and distraction decrease it.</p>
+<figure><img class="w45" src="../outputs/b6_calibration.png"> <img class="w50" src="../outputs/b6_coefficients.png">
+<figcaption>Figure 17 – Calibration on unseen students (left) and coefficients (right).</figcaption></figure>
+
+<h3>B6.6 Mastery estimate vs. the truth and vs. a simple formula</h3>
+<p><code>mastery_estimate</code> sets every row to a medium question while attentive and returns the model's P(correct). It is compared with the hidden true
+mastery and with a formula without machine learning (correct answers ÷ answers so far).</p>
+<pre class="out">Average error of the mastery estimate (test students):  B6 model 8.1 percentage points | simple formula 16.0</pre>
+<p>The model halves the error, because it corrects for difficulty, attention and topic, and its past-ratio does not mix old and recent knowledge as badly.</p>
+
+<h3>B6.7 Cold start</h3>
+<pre class="out">questions answered: 0     1     2     3     5     10    20    30
+B6 model error:     12.4  11.8  11.0  10.0  8.9   8.2   7.8   7.6
+formula error:      15.2  15.1  14.8  13.7  12.5  12.9  14.2  17.6</pre>
+<p>For a new student the model starts from the average student (12.4 pp error); after the 5 placement questions per topic the error drops to 8.9 pp.
+The simple formula gets <i>worse</i> after 10 answers because it never forgets old mistakes while the student keeps learning.</p>
+<figure><img class="w60" src="../outputs/b6_cold_start.png"><figcaption>Figure 18 – Mastery estimate error for new students.</figcaption></figure>
+
+<h3>B6.8 Block function and Can's mastery over 4 weeks</h3>
+<p><code>b6_mastery(answers)</code> takes all answers of one student, appends one "probe" row per topic (medium question, attentive), computes the history
+features and returns <code>{topic: mastery %}</code>. Can is simulated as a new student (good at addition, weak at multiplication and fractions).</p>
+<pre class="out">Before any answer:        addition 62.9, subtraction 59.9, multiplication 52.5, division 50.2, fractions 47.1
+After the placement test: addition 82.8, subtraction 65.5, multiplication 38.8, division 46.1, fractions 44.1
+After 4 weeks:            addition 86.6, subtraction 86.5, multiplication 53.9, division 67.3, fractions 65.6</pre>
+<figure><img class="w80" src="../outputs/b6_can_mastery_over_time.png"><figcaption>Figure 19 – Can's mastery per topic over 4 weeks (solid = estimated by B6, dotted = true). This is the time series required by the assignment.</figcaption></figure>
+<p><b>Interpretation:</b> the placement test immediately reveals Can's weakness in multiplication (52.5 → 38.8 %). Over four weeks every topic improves, and
+the estimated curves follow the true curves; multiplication remains his weakest topic, which matches what he wrote in the chat (B2).</p>
+
+<!-- ============================== 13 B7 ============================== -->
+<h2>13. B7 – Error type discovery <span class="tag uns">Unsupervised · Combined</span></h2>
+<p><b>Role:</b> B6 tells <i>how often</i> Can is wrong, B7 tells <i>why</i>. <b>Why unsupervised:</b> nobody labels the reason of a wrong answer – the tablet
+only knows the question and the answer read by B3 or B5a. K-Means groups similar wrong answers; afterwards we name the groups.</p>
+
+<h3>B7.1 Data – a question and a wrong answer for every wrong answer of B6</h3>
+<p><b>Code:</b> for each wrong answer in B6's log, <code>make_question</code> creates a question (bigger numbers for harder questions) and
+<code>wrong_answer</code> produces the child's answer from one of four <b>hidden error types</b>:</p>
+<table>
+<tr><th>Hidden error type</th><th>Example</th><th>What happens</th></tr>
+<tr><td><code>forgot_carry</code></td><td>47 + 38 → 75 (correct 85)</td><td>forgets the carry / borrow → off by exactly 10, 100, …</td></tr>
+<tr><td><code>careless_slip</code></td><td>47 + 38 → 84</td><td>off by 1 or 2 (fraction: numerator off by 1)</td></tr>
+<tr><td><code>wrong_operation</code></td><td>47 + 38 → 9</td><td>uses another operation</td></tr>
+<tr><td><code>fraction_rule</code></td><td>1/2 + 1/3 → 2/5</td><td>adds numerators and denominators separately</td></tr>
+</table>
+<p><code>needs_carry</code> checks the written column method (a carry only from a non-leftmost column counts); a forgotten carry is only possible when it is 1.
+Careless slips are twice as likely when B4 says distracted or tired; every student has a personal tendency (Dirichlet weights), which B8 uses later.
+The hidden type is <b>never given to K-Means</b>.</p>
+<pre class="out">Wrong answers: 18740 from 200 students
+careless_slip 9009, wrong_operation 5110, fraction_rule 2934, forgot_carry 1687
+e.g. 44 - 35 -> 19 (forgot_carry)    2/6 + 2/3 -> 4/9 (fraction_rule)    6 × 4 -> 10 (wrong_operation)</pre>
+
+<h3>B7.2 Preprocessing – describing the shape of a mistake</h3>
+<p>K-Means uses straight-line distances, so the columns define "similar". The raw columns fit badly: 47 + 38 → 75 and 472 + 38 → 400 are the same mistake but
+differ by −10 and −110. <code>b7_features</code> therefore derives four <b>size-independent</b> features:</p>
+<table>
+<tr><th>Feature</th><th>Formula</th><th>Typical values</th></tr>
+<tr><td><code>size_ratio_log</code></td><td>|log₂(given ÷ correct)|</td><td>0 = same size, 1 = half or double</td></tr>
+<tr><td><code>error_steps_log</code></td><td>log₁₀ of |difference| in steps (1, or 1/denominator)</td><td>0 = one step off, 1 = 10 steps</td></tr>
+<tr><td><code>diff_is_tens</code></td><td>1 if the difference is ±10, ±20, ±100 …</td><td>forgotten carry / borrow</td></tr>
+<tr><td><code>same_denominator</code></td><td>1 if a fraction answer keeps the correct denominator</td><td>0 → fraction rule</td></tr>
+</table>
+<p>The features are standardised (<b>output:</b> mean 0, std 1 for all four). There is no train/test split – there are no labels. In the app the scaler and
+K-Means are fitted once on stored wrong answers and every new wrong answer is only transformed and assigned.</p>
+
+<h3>B7.3 Number of clusters – elbow and silhouette</h3>
+<p><b>Inertia</b> is the total squared distance of points to their cluster centre; it always falls with more clusters, and we look for the "elbow".
+The <b>silhouette score</b> (−1 … 1) measures how much closer each point is to its own cluster than to the next one.</p>
+<pre class="out">k:          2      3      4      5      6      7      8
+silhouette: 0.491  0.628  0.717  0.678  0.677  0.665  0.606</pre>
+<p>Both measures point to <b>k = 4</b>: the elbow is at 4 and the silhouette is highest there (0.717 = well separated clusters).</p>
+<figure><img class="w80" src="../outputs/b7_choose_k.png"><figcaption>Figure 20 – Choosing the number of error types.</figcaption></figure>
+
+<h3>B7.4 Model and naming the clusters</h3>
+<p><code>KMeans(n_clusters=4, n_init=10)</code> returns only numbers 0–3; the code names them automatically from the centres: most <code>diff_is_tens</code> →
+forgot_carry; fewest <code>same_denominator</code> → fraction_rule; of the remaining two, smaller <code>error_steps_log</code> → careless_slip, the other → wrong_operation.
+Each type has a teacher hint (<code>B7_HINTS</code>).</p>
+<pre class="out">cluster  size_ratio_log  error_steps_log  diff_is_tens  same_denominator  name             size
+0        0.30            0.18             0.00          1.0               careless_slip    10296
+1        1.01            0.70             0.00          0.0               fraction_rule     2934
+2        0.68            1.40             1.00          1.0               forgot_carry      2110
+3        2.24            1.77             0.01          1.0               wrong_operation   3400</pre>
+
+<h3>B7.5 Evaluation – do the clusters match the hidden error types?</h3>
+<p>With real data clusters can only be judged by inspection; with our synthetic data we compare them with the hidden types using a cross table and the
+<b>Adjusted Rand Index</b> (ARI: 1 = perfect match, 0 = random).</p>
+<pre class="out">hidden \ found     forgot_carry  careless_slip  wrong_operation  fraction_rule
+forgot_carry           99.9          0.0            0.1             0.0
+careless_slip           0.0        100.0            0.0             0.0
+wrong_operation         8.3         25.2           66.5             0.0
+fraction_rule           0.0          0.0            0.0           100.0
+ARI (shape features): 0.768   matching name: 90.9 %   ARI (raw columns): 0.028</pre>
+<p><b>Interpretation:</b> three types are found almost perfectly. A quarter of the wrong operations land in "careless slip" because with small numbers they
+<i>look</i> like a slip (2 × 3 → 5 is 2 + 3, but also only one off). With the raw columns K-Means finds nothing useful (ARI 0.028) – the
+<b>feature design</b> is what makes the unsupervised block work.</p>
+<figure><img class="w80" src="../outputs/b7_clusters.png"><figcaption>Figure 21 – Wrong answers in feature space: clusters found (left) vs. hidden truth (right).</figcaption></figure>
+
+<h3>B7.6 Block function and Can's mistakes</h3>
+<pre class="out">47 + 38 = 75    -> forgot_carry     Practise column addition / subtraction with carrying ...
+47 + 38 = 84    -> careless_slip    Knows the method – ask him to check his answer ...
+7 × 8 = 15      -> wrong_operation  Mixes up the operations – practise reading the sign ...
+1/2 + 1/3 = 2/5 -> fraction_rule    Adds tops and bottoms – revisit common denominators ...
+47 + 38 = 85    -> None (correct)</pre>
+<p><code>b7_error_type(operation, a, b, given)</code> → <code>{error_type, hint}</code>. Can's 4 weeks from B6.8 are then sorted by B7 (week 1: 4 forgotten carries,
+12 slips, 3 wrong operations, 4 fraction rules; week 4: 1, 8, 1, 1 – fewer errors as he learns).</p>
+<figure><img class="w60" src="../outputs/b7_can_errors.png"><figcaption>Figure 22 – Can's wrong answers by error type per week (teacher dashboard).</figcaption></figure>
+<p><b>Characteristic error (input of B8).</b> The <i>most common</i> error is careless_slip for 191 of 200 students (slips are frequent for everybody), so it
+says nothing about a student. Instead we use the type a student makes <b>more often than the average student</b> (own share ÷ class average share).
+This spreads the students (wrong_operation 67, forgot_carry 51, careless_slip 44, fraction_rule 38) and matches the hidden tendencies reasonably
+(e.g. 43 of the "wrong operation" students are recognised). Can's ratio for forgot_carry is 1.51 → his characteristic error is <b>forgot_carry</b>.</p>
+
+<!-- ============================== 14 B8 ============================== -->
+<h2>14. B8 – Student profiles <span class="tag uns">Unsupervised · Combined</span></h2>
+<p><b>Role:</b> a teacher with 25 children needs to know which <i>kinds</i> of learners there are and what to do with each kind (requirement R8:
+<i>extract learning patterns to develop better teaching mechanisms</i>). Nobody labels children as "type A", so the profiles are discovered by K-Means.</p>
+
+<h3>B8.1 Data – one row per student</h3>
+<p><code>b8_student_row(log, characteristic_error)</code> builds the five inputs from the B6 log and B7:</p>
+<ul>
+<li><code>avg_accuracy</code> – share of correct answers over 4 weeks;</li>
+<li><code>learning_speed</code> – slope of the student's learning curve: the coefficient of <code>attempt_no</code> (per 10 questions) in a small per-student
+Logistic Regression with topic, difficulty and attention held fixed. A first idea (mastery after 4 weeks − after placement) made weak students look
+fast (correlation with the hidden learning rate only 0.36); the slope reaches 0.74;</li>
+<li><code>avg_attention</code> – share of answers given while attentive (B4);</li>
+<li><code>spoken_answer_ratio</code> – share of answers given by voice (B5a) instead of handwriting (B3);</li>
+<li><code>characteristic_error</code> – from B7.</li>
+</ul>
+<pre class="out">Students: 200     avg_accuracy mean 0.608 | learning_speed 0.313 | avg_attention 0.678 | spoken_answer_ratio 0.389
+S000: 0.623, 0.355, 0.667, 0.359, forgot_carry</pre>
+
+<h3>B8.2 Preprocessing</h3>
+<p>A <code>ColumnTransformer</code> scales the four numeric columns and one-hot encodes <code>characteristic_error</code>. Two different errors are √2 ≈ 1.4 apart
+in the one-hot columns – as much as a large numeric difference – so the one-hot part gets a <b>weight of 0.5</b> (<code>transformer_weights</code>);
+the error type then adds information without dominating. <b>Output:</b> 8 columns per student (e.g. S000: 0.13, 0.26, −0.08, −0.16, 0.5, 0, 0, 0).</p>
+
+<h3>B8.3 Number of profiles</h3>
+<pre class="out">k:          2      3      4      5      6      7      8
+silhouette: 0.211  0.204  0.194  0.192  0.187  0.186  0.187</pre>
+<p><b>Interpretation:</b> the silhouette stays around 0.2 and there is no clear elbow. This is an honest finding: children are not made of a few separate
+types – ability, speed and attention vary continuously. K-Means still gives a useful <b>segmentation</b>. We choose <b>k = 4</b>: four teaching strategies are
+manageable for a teacher and the groups are easy to name.</p>
+<figure><img class="w80" src="../outputs/b8_choose_k.png"><figcaption>Figure 23 – Choosing the number of student profiles.</figcaption></figure>
+
+<h3>B8.4 Model and naming the profiles</h3>
+<p><code>describe_profile</code> names every profile after the features whose centre differs from the average student by at least 0.5 standard deviations,
+using a table of names and recommendations (e.g. low <code>avg_attention</code> → <i>"Easily distracted – short sessions (10 min) with breaks and game elements"</i>).</p>
+<table>
+<tr><th>Profile</th><th>Students</th><th>avg_accuracy</th><th>learning_speed</th><th>avg_attention</th><th>spoken ratio</th><th>Recommendations</th></tr>
+<tr><td>0 Fast learner · Prefers writing</td><td>62</td><td>0.678</td><td>0.440</td><td>0.753</td><td>0.261</td><td>next level sooner; handwriting by default; challenge problems; longer sessions</td></tr>
+<tr><td>1 Prefers speaking</td><td>56</td><td>0.640</td><td>0.322</td><td>0.697</td><td>0.577</td><td>voice answers by default; run the voice calibration (B5a.9)</td></tr>
+<tr><td>2 Slow progress · Needs support</td><td>38</td><td>0.481</td><td>0.110</td><td>0.754</td><td>0.380</td><td>more practice, spaced repetition; easy questions first</td></tr>
+<tr><td>3 Easily distracted</td><td>44</td><td>0.577</td><td>0.298</td><td>0.483</td><td>0.336</td><td>short sessions with breaks and game elements</td></tr>
+</table>
+<p>Within "Slow progress · Needs support", 50 % have <i>wrong_operation</i> as characteristic error (they still mix up operations); within "Easily distracted",
+<i>careless_slip</i> is most frequent (34 %) – consistent with slips doubling when not attentive.</p>
+
+<h3>B8.5 Evaluation</h3>
+<p>Without labels there is no accuracy; the profiles are checked in three ways: a heatmap of the centres, a 2-D PCA picture, and the hidden traits of the simulation.</p>
+<figure><img style="width:100%" src="../outputs/b8_profiles.png"><figcaption>Figure 24 – Profile centres in standard deviations (left) and the 200 students projected with PCA (right).</figcaption></figure>
+<pre class="out">correlation with hidden traits: avg_attention ↔ distractibility -0.98 | spoken_answer_ratio ↔ speech preference 0.99
+                                learning_speed ↔ learning rate 0.75   | avg_accuracy ↔ ability 0.75
+hidden distractibility: profile "Easily distracted" 0.413 vs. 0.15–0.21 in the others
+hidden ability:         profile "Slow progress · Needs support" -0.706 (lowest)</pre>
+<p><b>Interpretation:</b> the profiles correspond to real hidden differences that K-Means never saw. Learning speed is the noisiest input – about 250 answers
+in four weeks are few for estimating a slope; it would become more reliable over a semester.</p>
+
+<h3>B8.6 Block function and Can's profile</h3>
+<pre class="out">Can's B8 input: avg_accuracy 0.581, learning_speed 0.326, avg_attention 0.611, spoken_answer_ratio 0.527, forgot_carry
+B8 output: profile 1 – Prefers speaking
+   • Voice answers by default; run the voice calibration (B5a.9).
+   • error: Practise column addition / subtraction with carrying and borrowing step by step.</pre>
+<p><code>b8_student_profile(...)</code> transforms a new student with the fitted preprocessing and assigns the nearest profile; it returns the profile name, the
+recommendations and the B7 hint. Can was not used to fit K-Means, so this is a genuine "new student" case.</p>
+
+<!-- ============================== 15 ============================== -->
+<h2>15. How the blocks work together</h2>
+<p>Each block is a function with a defined input and output, so outputs of one block become attributes of the next:</p>
+<table>
+<tr><th>From</th><th>Output</th><th>Used by</th><th>As attribute</th></tr>
+<tr><td>B1</td><td>interest + sentiment</td><td>question selection</td><td>topic of word problems (only if not negative)</td></tr>
+<tr><td>B2</td><td>topic + sentiment</td><td>question selection</td><td>topic to practise; <code>start_easy</code></td></tr>
+<tr><td>B3 / B5a</td><td>digit read from the answer</td><td>grading → B6, B7</td><td><code>is_correct</code> (B6), <code>given_answer</code> (B7)</td></tr>
+<tr><td>B4</td><td>attention state</td><td>B6, B7, B8</td><td><code>attention</code> (B6), slip rate (B7), <code>avg_attention</code> (B8)</td></tr>
+<tr><td>B5b</td><td>confident / hesitant</td><td>B6</td><td><code>prev_hesitant_ratio</code></td></tr>
+<tr><td>B6</td><td>answer log, mastery %</td><td>B7, B8, dashboard</td><td>wrong answers (B7), <code>avg_accuracy</code>, <code>learning_speed</code> (B8)</td></tr>
+<tr><td>B7</td><td>error type per wrong answer</td><td>B8, dashboard</td><td><code>characteristic_error</code></td></tr>
+<tr><td>B8</td><td>profile + recommendations</td><td>dashboard, session settings</td><td>session length, default answer mode</td></tr>
+</table>
+<p>In Can's case the chain gives one consistent picture: B2 hears that multiplication is hard, B6 confirms it as his weakest topic (53.9 % after four weeks),
+B7 shows that he tends to forget carries, and B8 classifies him as a child who prefers speaking, recommending voice answers with calibration and step-by-step
+carrying practice.</p>
+
+<!-- ============================== 16 ============================== -->
+<h2>16. Limitations and future work</h2>
+<ul>
+<li><b>Synthetic data.</b> B1, B2, B4, B5b, B6, B7, B8 use generated data; the results show that the pipelines work, not how well they would work on real
+children. Real data sources are listed in Section 18.</li>
+<li><b>Distribution shift (B3).</b> The 8×8 model fails on real drawings; MNIST fixes the example, but children's handwriting differs again from adults'.</li>
+<li><b>Unseen speakers (B5a).</b> Only 6 adult speakers: 49.6 % on a new voice; voice calibration raises it to 70–82 %. A model trained on children's speech is needed.</li>
+<li><b>TF-IDF (B1, B2).</b> Unknown words (<i>soccer</i>) and contrast words (<i>but</i>) are not understood. Future work: fine-tune <b>DistilBERT</b>.</li>
+<li><b>Mastery model (B6).</b> Logistic Regression on a few history features; Bayesian Knowledge Tracing or Deep Knowledge Tracing could capture forgetting and topic relations.</li>
+<li><b>Clustering (B7, B8).</b> K-Means assumes round clusters; small-number wrong operations look like slips (B7); student profiles are not sharply separated (silhouette ≈ 0.2).</li>
+<li><b>Privacy.</b> Camera and microphone data of children require parental consent and on-device processing.</li>
+</ul>
+
+<!-- ============================== 17 ============================== -->
+<h2>17. Conclusion</h2>
+<p>We described the requirements of an intelligent tutoring system and expressed Math Buddy's functionality as six supervised perception blocks (text, visual,
+audio), one supervised knowledge-tracing block and two unsupervised discovery blocks. For every block we defined the input attributes and the output
+structure and implemented it in Python. The supervised blocks reach 88–97 % test accuracy on their tasks; B6 estimates mastery with an average error of
+8.1 percentage points – half that of a simple formula – and tracks it over time; B7 recovers error types with 90.9 % agreement; B8 finds learning profiles
+that match hidden student traits and turns them into teaching recommendations. The honest limitations found along the way (real drawings, unseen voices,
+unknown words) show where real data and stronger models are needed next.</p>
+
+<!-- ============================== 18 ============================== -->
+<h2>18. References and data sources</h2>
+<ul>
+<li>scikit-learn: Pedregosa et al., <i>Scikit-learn: Machine Learning in Python</i>, JMLR 12, 2011. https://scikit-learn.org</li>
+<li>B3: <code>sklearn.datasets.load_digits</code> (UCI Optical Recognition of Handwritten Digits); MNIST – LeCun, Cortes, Burges, via OpenML <code>mnist_784</code>.</li>
+<li>B5a: Free Spoken Digit Dataset, https://github.com/Jakobovski/free-spoken-digit-dataset; librosa (McFee et al.) for MFCC extraction.</li>
+<li>Real datasets each synthetic block could use: B1 – Yellowbrick <i>hobbies</i> corpus (adult texts); B2 – ASDiv / SVAMP (math word problems);
+B4 – DAiSEE, EngageNet (student engagement videos), features via MediaPipe Face Mesh / OpenFace; B5b – Harvard Uncertainty Speech Corpus;
+B6 – ASSISTments; B7 – Eedi NeurIPS 2020 Education Challenge; B8 – Open University Learning Analytics Dataset (OULAD).</li>
+<li>Knowledge tracing: Pavlik, Cen, Koedinger, <i>Performance Factors Analysis</i>, 2009; Corbett &amp; Anderson, <i>Knowledge Tracing</i>, 1995.</li>
+<li>DistilBERT: Sanh et al., <i>DistilBERT, a distilled version of BERT</i>, 2019.</li>
+</ul>
+
+</body>
+</html>
