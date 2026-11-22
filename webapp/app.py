@@ -262,9 +262,34 @@ def voice_features(signal, sr):
     }
 
 
-@app.post("/api/b5b/audio")
-def b5b_audio():
-    upload = request.files.get("audio")
+# Voice calibration (notebook B5a.9b): the child's own recordings, and the personal B5a model trained with them
+VOICE = {"features": [], "digits": [], "model": None}
+
+
+def last_word_features(measured, sr):
+    # MFCC features (B5a input) of the last spoken word of a recording, prepared like the dataset (8 kHz, cut tightly)
+    answer = librosa.resample(measured["answer_audio"], orig_sr=sr, target_sr=8000)
+    if len(answer) < 0.15 * 8000:
+        return None
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        soundfile.write(tmp.name, answer, 8000)
+    try:
+        return F["extract_mfcc_features"](tmp.name)
+    finally:
+        os.remove(tmp.name)
+
+
+def read_digit(features):
+    # B5a on one word: the personal model if the voice was calibrated, otherwise the notebook model
+    model = VOICE["model"] or M["b5a_model"]
+    probabilities = model.predict_proba(pd.DataFrame([features], columns=M["b5a_model"].feature_names_in_))[0]
+    best = int(np.argmax(probabilities))
+    return {"digit": int(model.classes_[best]), "probability": round(float(probabilities[best]), 3),
+            "personal": VOICE["model"] is not None}
+
+
+def analyse_voice(upload):
+    """B5b + B5a on one spoken answer: the four voice features, confident / hesitant, and the digit of the last word."""
     if upload is None:
         raise BadInput("No audio received.")
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
@@ -281,16 +306,14 @@ def b5b_audio():
         raise BadInput("Could not hear a voiced sound to measure the pitch. Speak a bit longer.")
     result = F["b5b_detect_confidence"](min(f["speech_rate"], 7), min(f["pause_count"], 10),
                                         min(f["response_delay"], 15), min(f["pitch_variation"], 8))
-    digit = None
-    answer = librosa.resample(measured["answer_audio"], orig_sr=sr, target_sr=8000)
-    if len(answer) >= 0.15 * 8000:                     # B5a on the last word (the answer), like the tutor would
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-            soundfile.write(tmp.name, answer, 8000)
-        try:
-            digit = F["b5a_recognize_speech"](tmp.name)
-        finally:
-            os.remove(tmp.name)
-    return jsonify({"result": result, "features": f, "details": measured["details"], "b5a": digit})
+    features = last_word_features(measured, sr)          # B5a on the last word (the answer), like the tutor would
+    digit = read_digit(features) if features is not None else None
+    return {"result": result, "features": f, "details": measured["details"], "b5a": digit}
+
+
+@app.post("/api/b5b/audio")
+def b5b_audio():
+    return jsonify(analyse_voice(request.files.get("audio")))
 
 
 # ---------------------------------------------------------------- B6 – mastery
@@ -416,6 +439,158 @@ def b8():
     result = F["b8_student_profile"](**values, characteristic_error=error)
     z = {k: round((v - X["b8_mean"][k]) / X["b8_std"][k], 2) for k, v in values.items()}
     return jsonify({"result": result, "student_z": z})
+
+
+# ---------------------------------------------------------------- Lesson – the whole learning loop
+from lesson import BadAnswer, Lesson  # noqa: E402
+
+LESSONS = {}                     # lesson id -> Lesson (in memory; one server = a few children at a time)
+
+
+@app.errorhandler(BadAnswer)
+def bad_answer(error):
+    return jsonify({"error": str(error)}), 400
+
+
+def lesson_from(data):
+    lesson = LESSONS.get(str(data.get("id", "")))
+    if lesson is None:
+        raise BadInput("This lesson has expired. Start a new one.")
+    return lesson
+
+
+@app.post("/api/lesson/start")
+def lesson_start():
+    if len(LESSONS) >= 50:
+        LESSONS.pop(next(iter(LESSONS)))
+    lesson = Lesson(F, C, X)
+    LESSONS[lesson.id] = lesson
+    return jsonify(lesson.respond())
+
+
+@app.post("/api/lesson/chat")
+def lesson_chat():
+    data = request.get_json(force=True)
+    lesson = lesson_from(data)
+    lesson.chat(data.get("message", ""))
+    return jsonify(lesson.respond())
+
+
+@app.post("/api/lesson/answer")
+def lesson_answer():
+    data = request.get_json(force=True)
+    lesson = lesson_from(data)
+    lesson.answer(data)
+    return jsonify(lesson.respond())
+
+
+@app.post("/api/lesson/topic")
+def lesson_topic():
+    data = request.get_json(force=True)
+    lesson = lesson_from(data)
+    lesson.set_topic(data.get("topic"))
+    return jsonify(lesson.respond())
+
+
+@app.post("/api/lesson/skip")
+def lesson_skip():
+    lesson = lesson_from(request.get_json(force=True))
+    lesson.skip_step()
+    return jsonify(lesson.respond())
+
+
+@app.post("/api/lesson/resume")
+def lesson_resume():
+    lesson = lesson_from(request.get_json(force=True))
+    lesson.resume()
+    return jsonify(lesson.respond())
+
+
+@app.post("/api/lesson/dashboard")
+def lesson_dashboard():
+    lesson = lesson_from(request.get_json(force=True))
+    result = lesson.dashboard()
+    return jsonify({**result, **lesson.respond()})
+
+
+@app.post("/api/lesson/read/handwriting")
+def lesson_read_handwriting():
+    # One digit per box, left to right; empty boxes are skipped. Each box is read by B3 (MNIST model).
+    boxes = request.get_json(force=True).get("boxes", [])
+    if not isinstance(boxes, list) or not 1 <= len(boxes) <= 4:
+        raise BadInput("Send 1-4 boxes.")
+    digits = []
+    for ink in boxes:
+        ink = np.asarray(ink, dtype=float)
+        if ink.ndim != 2 or ink.size > 200 * 200:
+            raise BadInput("Bad drawing.")
+        if (ink > 60).sum() >= 5:
+            digits.append(F["b3_read_drawing"](ink))
+    if not digits:
+        raise BadInput("Write the answer in the boxes first.")
+    return jsonify({"value": "".join(str(d["digit"]) for d in digits),
+                    "digits": [{"digit": int(d["digit"]), "probability": round(float(d["probability"]), 3)}
+                               for d in digits]})
+
+
+@app.post("/api/lesson/read/voice")
+def lesson_read_voice():
+    r = analyse_voice(request.files.get("audio"))
+    if r["b5a"] is None:
+        raise BadInput("I heard you, but the last word was too short to read. Say the number again.")
+    return jsonify({"value": str(r["b5a"]["digit"]), "probability": round(float(r["b5a"]["probability"]), 3),
+                    "personal": r["b5a"]["personal"], "calibration": len(VOICE["digits"]),
+                    "state": r["result"]["state"], "p_hesitant": r["result"]["p_hesitant"], "features": r["features"]})
+
+
+@app.post("/api/voice/sample")
+def voice_sample():
+    # One calibration recording: the child says the digit shown on the screen
+    try:
+        digit = int(request.form.get("digit", ""))
+    except ValueError:
+        raise BadInput("Which digit was said?") from None
+    if not 0 <= digit <= 9:
+        raise BadInput("Digit must be 0-9.")
+    upload = request.files.get("audio")
+    if upload is None:
+        raise BadInput("No audio received.")
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        upload.save(tmp.name)
+    try:
+        signal, sr = librosa.load(tmp.name, sr=16000)
+    except Exception:
+        raise BadInput("Could not read the recording.") from None
+    finally:
+        os.remove(tmp.name)
+    features = last_word_features(voice_features(signal, sr), sr)
+    if features is None:
+        raise BadInput("Too short – say the digit a bit longer.")
+    heard = read_digit(features)                       # what B5a understood BEFORE learning this recording
+    VOICE["features"].append(features.tolist())
+    VOICE["digits"].append(digit)
+    return jsonify({"heard": heard, "counts": [VOICE["digits"].count(d) for d in range(10)]})
+
+
+@app.post("/api/voice/train")
+def voice_train():
+    # Retrain B5a on FSDD + the child's recordings (each counted CALIBRATION_WEIGHT times), notebook B5a.9b
+    if len(set(VOICE["digits"])) < 10:
+        raise BadInput("Record every digit 0-9 at least once first.")
+    VOICE["model"] = F["b5a_calibrate"](np.array(VOICE["features"]), VOICE["digits"])
+    return jsonify({"recordings": len(VOICE["digits"]), "weight": C["CALIBRATION_WEIGHT"]})
+
+
+@app.post("/api/voice/reset")
+def voice_reset():
+    VOICE.update(features=[], digits=[], model=None)
+    return jsonify({"recordings": 0})
+
+
+@app.get("/api/voice")
+def voice_status():
+    return jsonify({"counts": [VOICE["digits"].count(d) for d in range(10)], "personal": VOICE["model"] is not None,
+                    "recordings": len(VOICE["digits"])})
 
 
 def warm_up():

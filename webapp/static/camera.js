@@ -150,4 +150,5 @@ function stop() {
 }
 
 button.addEventListener("click", () => (running ? stop() : start()));
-window.addEventListener("hashchange", () => { if (running && location.hash !== "#b4") stop(); });
+window.addEventListener("hashchange", () => { if (running && !["#b4", "#lesson", ""].includes(location.hash)) stop(); });
+window.cameraRunning = () => running && !!baseline;   // used by the lesson page

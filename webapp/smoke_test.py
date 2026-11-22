@@ -152,5 +152,60 @@ check("B8 distracted student", s == 200 and "distracted" in d["result"]["profile
 s, d = call("/api/b8", {"avg_accuracy": "abc"})
 check("B8 bad input rejected", s == 400, d)
 
+# Lesson: chat -> question -> wrong answer -> B9 probes -> learning path (practice) -> dashboard
+s, d = call("/api/lesson/start", {})
+lid = d["id"]
+check("Lesson start", s == 200 and d["state"] == "chat_interest" and d["panel"]["arrows_used"] == 2, d["state"])
+s, d = call("/api/lesson/chat", {"id": lid, "message": "I played football with my friends, it was awesome!"})
+check("Lesson B1 interest", s == 200 and d["panel"]["interest"] == "sports" and d["state"] == "chat_topic", d["panel"]["interest"])
+s, d = call("/api/lesson/chat", {"id": lid, "message": "I don't understand addition at all"})
+check("Lesson B2 topic -> placement test", s == 200 and d["panel"]["topic"] == "addition" and d["state"] == "placement",
+      d["panel"]["placement"] if s == 200 else d)
+s, d = call("/api/lesson/skip", {"id": lid})
+check("Lesson placement skipped -> first question", s == 200 and d["state"] == "question", d["prompt"]["text"] if s == 200 else d)
+s, d = call("/api/lesson/answer", {"id": lid, "value": "abc", "mode": "keyboard", "camera": {"preset": "attentive"}})
+check("Lesson bad answer rejected", s == 400, d)
+s, d = call("/api/lesson/answer", {"id": lid, "value": "1", "mode": "keyboard", "camera": {"preset": "distracted"}})
+arrows = {(e["from"], e["to"]) for e in d["events"] if e["type"] == "arrow"}
+check("Lesson wrong answer -> B6, B7, B9", s == 200 and {("TUTOR", "B6"), ("TUTOR", "B7"), ("B7", "B9"), ("B6", "B9")} <= arrows,
+      d["state"])
+steps = 0
+while s == 200 and d["state"] == "probe" and steps < 5:
+    steps += 1
+    s, d = call("/api/lesson/answer", {"id": lid, "value": "1", "mode": "keyboard", "camera": {"preset": "attentive"}})
+check("Lesson B9 probes end in a diagnosis", s == 200 and d["state"] in ("practice", "question", "break") and d["panel"]["diagnoses"] == 1,
+      f"{steps} probe(s), now {d['state']}")
+s, d = call("/api/lesson/dashboard", {"id": lid})
+check("Lesson dashboard", s == 200 and len(d["diagnoses"]) == 1 and d["answers"] == 1, d.get("characteristic"))
+# A distracted child: B6 prices the distraction, the tutor takes a break before the next question
+s, d = call("/api/lesson/start", {})
+lid = d["id"]
+call("/api/lesson/chat", {"id": lid, "message": "I played football with my friends"})
+call("/api/lesson/chat", {"id": lid, "message": "I don't understand addition at all"})
+call("/api/lesson/skip", {"id": lid})
+s, d = call("/api/lesson/answer", {"id": lid, "value": "1", "mode": "keyboard", "camera": {"preset": "distracted"}})
+cost = [e for e in d["events"] if e["type"] == "arrow" and (e["from"], e["to"]) == ("B6", "TUTOR")]
+check("Lesson B6 prices the distraction", s == 200 and len(cost) == 1, cost[0]["message"] if cost else d)
+while s == 200 and d["state"] == "probe":
+    s, d = call("/api/lesson/answer", {"id": lid, "value": "1", "mode": "keyboard", "camera": {"preset": "attentive"}})
+check("Lesson break before the next item", s == 200 and d["state"] == "break", d["state"])
+s, d = call("/api/lesson/resume", {"id": lid})
+check("Lesson resume after the break", s == 200 and d["state"] in ("practice", "question"), d["state"])
+# Placement test of the chosen topic: one probe per skill, then a learning path from the first missing skill
+s, d = call("/api/lesson/start", {})
+lid = d["id"]
+call("/api/lesson/chat", {"id": lid, "message": "I played football with my friends"})
+s, d = call("/api/lesson/chat", {"id": lid, "message": "Multiplication is so hard for me"})
+total = d["panel"]["placement"]["total"] if s == 200 and d["panel"]["placement"] else 0
+check("Lesson placement test of the topic", s == 200 and d["state"] == "placement" and total >= 5
+      and len(d["panel"]["placement_result"]) == total - 2, f"{total} questions")
+for _ in range(total):
+    s, d = call("/api/lesson/answer", {"id": lid, "value": "1", "mode": "keyboard", "camera": {"preset": "attentive"}})
+known = [r["skill"] for r in d["panel"]["placement_result"] if r["result"]]
+check("Lesson placement -> learning path or questions", s == 200 and d["state"] in ("practice", "question")
+      and d["panel"]["answers"] == 2, f"now {d['state']}, known: {known}")
+s, d = call("/api/lesson/answer", {"id": "nope", "value": "1"})
+check("Lesson unknown id rejected", s == 400, d)
+
 print(f"\n{'ALL PASSED' if not failures else f'{failures} FAILED'}")
 sys.exit(1 if failures else 0)

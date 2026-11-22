@@ -37,8 +37,8 @@ function debounce(fn, ms = 160) {
 
 /* ------------------------------------------------------------ navigation */
 function route() {
-  const id = (location.hash || "#overview").slice(1);
-  const target = document.getElementById(id) ? id : "overview";
+  const id = (location.hash || "#lesson").slice(1);
+  const target = document.getElementById(id) ? id : "lesson";
   $$(".block").forEach((s) => s.classList.toggle("on", s.id === target));
   $$("nav.index a").forEach((a) => a.setAttribute("aria-current", a.getAttribute("href") === "#" + target));
   window.scrollTo(0, 0);
@@ -78,6 +78,7 @@ function setFields(root, keys, values) {
 }
 // Used by camera.js: set the three B4 sliders from a camera measurement (null = missing value) and run B4
 window.b4FromCamera = (values) => {
+  window.lastCameraFeatures = values;                  // the lesson page sends the latest window to B4
   Object.entries(values).forEach(([k, v]) => {
     const f = $(`#b4-in .field[data-key="${k}"]`); const range = $("input[type=range]", f); const off = $(".off input", f);
     off.checked = v == null; if (v != null) range.value = v;

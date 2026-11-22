@@ -10,13 +10,14 @@
 
 <header class="top">
   <h1><a href="#overview">Math Buddy</a></h1>
-  <span class="sub">Block workbench: try each block of the tutor separately, with your own input</span>
+  <span class="sub">Lesson: the whole learning loop · Workbench: try each block on its own</span>
   <span class="status" id="status">loading models…</span>
 </header>
 
 <div class="layout">
 <nav class="index" aria-label="Blocks">
-  <a href="#overview" class="home"><span class="k">00</span><span class="t">Overview</span></a>
+  <a href="#lesson" class="home"><span class="k">▶</span><span class="t">Lesson · all blocks</span></a>
+  <a href="#overview"><span class="k">00</span><span class="t">Overview</span></a>
   <div class="group">Text</div>
   <a href="#b1"><span class="k">B1</span><span class="t">Interest</span></a>
   <a href="#b2"><span class="k">B2</span><span class="t">Struggle topic</span></a>
@@ -33,6 +34,141 @@
 </nav>
 
 <main>
+
+<!-- ============================================================ LESSON -->
+<section class="block" id="lesson">
+  <div class="lesson-bar">
+    <div><h2>Lesson</h2>
+      <p class="muted">Be the child. All blocks work together; the tutor decides how you answer each question.</p></div>
+    <div class="bar-controls">
+      <label>Camera (B4)
+        <select id="ls-cam">
+          <option value="live" disabled>live camera (off)</option>
+          <option value="attentive" selected>attentive</option>
+          <option value="distracted">looking out of the window</option>
+          <option value="tired">tired</option>
+        </select></label>
+      <label><input type="checkbox" id="ls-tts" checked> tutor speaks</label>
+      <button id="ls-voice-btn">🎤 Teach me your voice</button>
+      <button id="ls-dash-btn">Teacher dashboard</button>
+      <button class="link" id="ls-new">new lesson</button>
+    </div>
+  </div>
+
+  <div class="lesson" id="ls-view">
+    <div class="lesson-main">
+      <div class="chat" id="ls-chat" aria-live="polite"></div>
+
+      <div class="now" id="ls-now">
+        <div class="banner" id="ls-banner" hidden>
+          <div><b>PLACEMENT TEST</b> <span id="ls-banner-text"></span></div>
+          <div class="banner-bar"><span id="ls-banner-bar"></span></div>
+        </div>
+        <div class="now-head"><span class="now-mode" id="ls-mode"></span><span class="now-why" id="ls-why"></span></div>
+
+        <div class="pane" id="pane-keyboard">
+          <div class="row" style="margin-top:0">
+            <input type="text" id="ls-text" autocomplete="off">
+            <button class="primary" id="ls-text-send">Send</button>
+          </div>
+          <div class="examples" id="ls-examples"></div>
+        </div>
+
+        <div class="pane" id="pane-speech">
+          <div class="row" style="margin-top:0">
+            <button class="primary mic" id="ls-mic">🎤 Speak</button>
+            <span class="rec" id="ls-rec"><span class="dot"></span><span id="ls-rec-state">Press, then say one English digit (zero … nine).</span></span>
+          </div>
+        </div>
+
+        <div class="pane" id="pane-handwriting">
+          <div class="boxes-row" id="ls-boxes"></div>
+          <div class="row"><button class="primary" id="ls-read">Read my writing</button><button id="ls-clear">Clear</button></div>
+        </div>
+
+        <div class="pane" id="pane-break">
+          <div class="row" style="margin-top:0"><button class="primary" id="ls-back">I'm back!</button></div>
+        </div>
+
+        <div class="readback" id="ls-readback" hidden>
+          <span id="ls-read-text"></span>
+          <input type="text" id="ls-value" autocomplete="off" aria-label="answer that will be sent">
+          <button class="primary" id="ls-send">Send answer</button>
+        </div>
+
+        <div class="now-foot">
+          <button class="link" id="ls-type-instead">no microphone? type instead</button>
+          <button class="link" id="ls-skip" hidden>skip this practice step</button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="lesson-side">
+      <div class="tabs side-tabs" role="tablist">
+        <button role="tab" data-side="progress" aria-selected="true">Progress</button>
+        <button role="tab" data-side="diagnosis" aria-selected="false">Diagnosis <span id="ls-diag-dot"></span></button>
+        <button role="tab" data-side="trace" aria-selected="false">Code trace <span class="muted" id="ls-arrows-n"></span></button>
+      </div>
+
+      <div class="side-panel" id="side-progress">
+        <dl class="sheet" id="ls-facts"></dl>
+        <div class="row" style="margin-top:-4px"><label class="muted">change topic <select id="ls-topic"></select></label></div>
+        <div id="ls-placement" hidden>
+          <span class="label" style="margin-top:12px">Placement test – what the child knows</span>
+          <ul class="skills" id="ls-skills"></ul>
+        </div>
+        <span class="label" style="margin-top:16px">B6 · mastery per topic <span class="lc">(grey = start of lesson)</span></span>
+        <div id="ls-mastery"></div>
+        <span class="label" style="margin-top:16px">B8 profile · pace</span>
+        <dl class="sheet" id="ls-pace"></dl>
+        <details class="cam-slot"><summary>Live camera for B4</summary><div id="ls-cam-slot"></div></details>
+      </div>
+
+      <div class="side-panel" id="side-diagnosis" hidden>
+        <p class="empty" id="ls-diag-empty">Nothing to diagnose yet. Answer a question wrongly and B9 starts asking.</p>
+        <div id="ls-diag" hidden>
+          <span class="label">B9 · why was it wrong?</span>
+          <div id="ls-belief"></div>
+          <p class="muted mono" id="ls-asked"></p>
+        </div>
+        <div id="ls-path" hidden>
+          <span class="label" style="margin-top:16px">B9 · learning path (order from B10)</span>
+          <ol class="path" id="ls-steps"></ol>
+        </div>
+      </div>
+
+      <div class="side-panel" id="side-trace" hidden>
+        <p class="muted">Every line is one arrow of the block diagram, with the notebook function that did the work.</p>
+        <div class="arrows-meter"><span id="ls-arrows-bar"></span></div>
+        <p class="muted mono" id="ls-arrows"></p>
+        <div class="trace-list" id="ls-trace"></div>
+      </div>
+    </aside>
+  </div>
+
+  <div id="ls-dash" hidden></div>
+
+  <div id="ls-voice" hidden>
+    <div class="card voice">
+      <span class="label">B5a · voice calibration (notebook B5a.9 / B5a.9b)</span>
+      <p>B5a learned digits from 6 adult speakers only. On a new voice it is right only about half of the time. Say every digit a few
+        times: B5a is trained again with your recordings, each counted 10 times. In the notebook this raises the accuracy on an unseen
+        speaker from about 50 % to about 80 % with 3 recordings per digit (about one minute).</p>
+      <div class="say-digit"><span class="muted">Say:</span> <b id="vc-digit">0</b> <span id="vc-word">zero</span></div>
+      <div class="row">
+        <button class="primary mic" id="vc-rec">🎤 Record</button>
+        <span class="rec" id="vc-recst"><span class="dot"></span><span id="vc-state">Press, say the digit once, then wait.</span></span>
+      </div>
+      <p class="muted mono" id="vc-heard"></p>
+      <div class="digit-grid" id="vc-grid"></div>
+      <div class="row">
+        <button class="primary" id="vc-train" disabled>Train B5a with my voice</button>
+        <button class="link" id="vc-reset">delete my recordings</button>
+      </div>
+      <p id="vc-status" class="muted"></p>
+    </div>
+  </div>
+</section>
 
 <!-- ============================================================ OVERVIEW -->
 <section class="block" id="overview">
@@ -163,6 +299,7 @@
   <div class="bench">
     <div class="in" id="b4-in">
       <span class="label">Input · live camera</span>
+      <div id="cam-home"><div id="cam-widget">
       <div class="row" style="margin-top:0"><button class="primary" id="cam-btn">Turn on camera</button>
         <span class="muted" id="cam-msg">The video stays in your browser; only three numbers per second go to the model.</span></div>
       <div id="cam-box" hidden>
@@ -172,6 +309,7 @@
         <div class="timeline" id="cam-timeline"></div>
         <p class="muted mono" id="cam-share"></p>
       </div>
+      </div></div>
       <span class="label" style="margin-top:18px">Input · camera features <span style="text-transform:none;letter-spacing:0">(set by the camera, or by hand)</span></span>
       <div class="field" data-key="screen_gaze_ratio"><label>Looking at the screen <small>share of the window</small></label><output></output>
         <input type="range" min="0" max="1" step="0.01" value="0.9">
@@ -421,6 +559,7 @@
 </div>
 
 <script src="{{ url_for('static', filename='app.js') }}"></script>
+<script src="{{ url_for('static', filename='lesson.js') }}"></script>
 <script type="module" src="{{ url_for('static', filename='camera.js') }}"></script>
 </body>
 </html>

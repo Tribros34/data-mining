@@ -16,6 +16,7 @@ import time
 
 import cloudpickle
 import matplotlib
+import numpy as np
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
@@ -31,10 +32,18 @@ FUNCTIONS = [
     "b5b_detect_confidence", "b6_mastery", "simulate_student", "make_student_profile", "true_mastery_from_skill",
     "b7_error_type", "b7_features", "make_question", "correct_answer", "wrong_answer", "needs_carry", "as_text",
     "value", "b8_student_profile", "b8_student_row",
+    # B9 / B10 and the demo helpers used by the lesson page (lesson.py)
+    "b9_case", "b9_first_guess", "bayes_update", "b9_next_probe", "b9_decision", "skills_for_question",
+    "b9_learning_path", "practice_item", "word_problem", "b7_error_type",
+    # tutor decisions from B6 / B8 (notebook section 10.2b)
+    "b6_p_correct", "b6_attention_cost", "next_topic", "b8_pace", "b5a_calibrate",
 ]
 MODELS = ["b1_model", "b2_model", "sentiment_model", "b3_mnist_model", "b4_model", "b5a_model", "b5b_model"]
 CONSTANTS = ["TOPICS", "TOPIC_START", "ERROR_TYPES", "SYMBOL", "B7_HINTS", "B8_NUMERIC", "B8_PROFILES", "PROFILE_TAGS",
-             "ATTENTION_FEATURES", "CONFIDENCE_FEATURES"]
+             "ATTENTION_FEATURES", "CONFIDENCE_FEATURES",
+             "PROBES", "SKILL_TIPS", "SKILLS", "SKILL_MAP", "B9_CLASSES", "B10_SKILL_MAP", "CAMERA", "INTEREST_WORDS",
+             "DIAGRAM_ARROWS", "DIAGRAM_BLOCKS", "MASTERED_AT", "BREAK_COST", "DEFAULT_PACE",
+             "CALIBRATION_WEIGHT"]
 METRICS = {"B1": "b1_accuracy", "B2": "b2_accuracy", "B3 (8x8)": "b3_accuracy", "B3 (MNIST)": "b3_mnist_accuracy",
            "B4": "b4_accuracy", "B5a": "b5a_accuracy", "B5b": "b5b_accuracy"}
 
@@ -72,6 +81,13 @@ def main():
             "b8_std": b8[ns["B8_NUMERIC"]].std().round(4).to_dict(),
             "b8_centers_z": ns["b8_centers_z"].round(3).to_dict(orient="index"),
             "b8_sizes": b8["profile_id"].value_counts().sort_index().to_dict(),
+            # Lesson page: 3 real MNIST test images per digit (for "What number is this?"), the mined learning
+            # patterns of B10 and the average error-type shares (for the characteristic error of B8)
+            "mnist_samples": {d: [ns["X_mnist_test"][i].reshape(28, 28).astype(int).tolist()
+                                  for i in np.where(ns["y_mnist_test"] == d)[0][:3]] for d in range(10)},
+            "b10_patterns": [{"prerequisite": r.prerequisite, "skill": r.skill, "without_rate": round(float(r.without_rate), 3)}
+                             for r in ns["direct"].sort_values("without_rate").itertuples()],
+            "average_share": {k: float(v) for k, v in ns["average_share"].items()},
             "b4_importance": {k: round(float(v), 3) for k, v in zip(
                 ns["ATTENTION_FEATURES"], ns["b4_model"].named_steps["classifier"].feature_importances_)},
         },
