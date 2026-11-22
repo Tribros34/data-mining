@@ -638,6 +638,7 @@ class Lesson:
         except Exception:                     # e.g. the learning-speed regression cannot be fitted yet
             return
         profile["row"] = {k: (round(float(v), 3) if k != "characteristic_error" else v) for k, v in row.items()}
+        profile["outlier"] = self.F["b8_outlier_check"](**row)       # B8.5b: does the child fit the profile at all?
         changed = not self.profile or profile["profile_id"] != self.profile["profile_id"]
         self.profile = profile
         if changed:

@@ -47,12 +47,12 @@
   Teslim edilenler: <code>math_buddy_its.ipynb</code>, <code>report/Math_Buddy_ITS_Report.pdf</code>, <code>outputs/</code>, <code>diagram/</code>, <code>test_drawings/</code>, <code>requirements.txt</code>.</p>
   <table style="width:88%;margin:10mm auto;font-size:10pt">
     <tr><th>Kişi</th><th>Konu</th><th>Rapordaki sayfalar</th><th>Notebook bölümleri</th></tr>
-    <tr><td><b>Kişi 1</b></td><td>Çerçeve, ortak kavramlar, metrikler + <b>B6 Mastery</b></td><td>1–8, 21–23, 40–42</td><td>Başlık, 0. Setup, B6</td></tr>
+    <tr><td><b>Kişi 1</b></td><td>Çerçeve, ortak kavramlar, metrikler + <b>B6 Mastery</b></td><td>1–8, 21–24, 41–44</td><td>Başlık, 0. Setup, B6</td></tr>
     <tr><td><b>Kişi 2</b></td><td>Görsel: <b>B3 El yazısı</b> + <b>B4 Dikkat</b></td><td>9–11, 15–16</td><td>B3.1–B3.9, B4.1–B4.7</td></tr>
     <tr><td><b>Kişi 3</b></td><td>Ses: <b>B5a Sesli rakam</b> + <b>B5b Özgüven</b></td><td>12–14, 16–17</td><td>B5a.1–B5a.9, B5b.1–B5b.7</td></tr>
     <tr><td><b>Kişi 4</b></td><td>Metin: <b>B1 İlgi</b>, <b>B2 Zorlanılan konu</b>, <b>Sentiment</b></td><td>18–21</td><td>Text blocks, B1, B2, Sentiment</td></tr>
-    <tr><td><b>Kişi 5</b></td><td>Unsupervised: <b>B7 Hata tipleri</b> + <b>B8 Öğrenci profilleri</b></td><td>24–30</td><td>B7.1–B7.6, B8.1–B8.6</td></tr>
-    <tr><td><b>Herkes</b></td><td><b>B9 Kök neden teşhisi</b>, <b>B10 Beceri haritası</b>, <b>Demo</b>, label'lar, diyagram = kod (rehber bölüm 6)</td><td>31–39</td><td>0.1, B9, B10, 10</td></tr>
+    <tr><td><b>Kişi 5</b></td><td>Unsupervised: <b>B7 Hata tipleri</b> + <b>B8 Öğrenci profilleri</b></td><td>25–31</td><td>B7.1–B7.6, B8.1–B8.6</td></tr>
+    <tr><td><b>Herkes</b></td><td><b>B9 Kök neden teşhisi</b>, <b>B10 Beceri haritası</b>, <b>Demo</b>, label'lar, diyagram = kod (rehber bölüm 6)</td><td>32–40</td><td>0.1, B9, B10, 10</td></tr>
   </table>
   <p style="text-align:center" class="small">Nasıl kullanılır: <b>Herkes</b> önce "Bölüm 0 – Ortak temel"i okusun (Kişi 1 anlatır).
   Sonra herkes kendi bölümünü derinlemesine çalışsın. En sondaki <b>"Herkesin asgari bilmesi gerekenler"</b> bölümünü herkes ezberleyecek kadar bilsin.<br>
@@ -72,6 +72,7 @@
 <li>Kişi 5 – B7, B8 (K-Means, elbow, silhouette, ARI, PCA)</li>
 <li><b>Yeni: B9, B10, Demo, label'lar, diyagram (herkes)</b></li>
 <li>Herkesin asgari bilmesi gerekenler + olası hoca soruları</li>
+<li><b>27 Kasım sunumu – prova: 25 soru + canlı kod değişiklikleri (herkes)</b></li>
 </ol>
 
 <!-- =====================================================================
@@ -83,7 +84,7 @@
 <h3>0.1 Proje tek cümlede</h3>
 <p>Math Buddy, ilkokul matematiği için bir tablet öğretmenidir. Hocanın istediği şey: bir akıllı öğretmenin (ITS) her işlevini
 <b>bir makine öğrenmesi görevi</b> (bir "blok") olarak çizmek, her bloğa giren verinin sütunlarını ve çıkan sonucun yapısını tanımlamak,
-Python'da yazmak ve raporda kodu/çıktıyı açıklamak. Bizde 9 blok var: 7 supervised (B1, B2, B3, B4, B5a, B5b, B6), 2 unsupervised (B7, B8).</p>
+Python'da yazmak ve raporda kodu/çıktıyı açıklamak. Bizde 11 blok var: 8 supervised (B1, B2, B3, B4, B5a, B5b, B6, B9), 3 unsupervised (B7, B8, B10).</p>
 
 <h3>0.2 Supervised ve unsupervised öğrenme</h3>
 <figure>
@@ -196,7 +197,7 @@ Bloklar birbirini sadece bu fonksiyonlarla kullanır; böylece bir blok kapatıl
 ===================================================================== -->
 <h2 class="p1 pb">1. Kişi 1 – Proje çerçevesi, Setup, metrikler ve B6</h2>
 <div class="own"><b>Sorumluluk:</b> Rapor s. 1–8 (kapak, giriş, gereksinimler, senaryo, blok diyagramı, veri/çıktı tablosu, implementation overview),
-s. 20–22 (B6), s. 29–30 (blokların birlikte çalışması, kısıtlar, sonuç, kaynaklar). Notebook: başlık hücresi, <b>0. Setup</b>, <b>B6</b>.
+s. 21–24 (B6), s. 41–44 (blokların birlikte çalışması, kısıtlar, sonuç, kaynaklar). Notebook: başlık hücresi, <b>0. Setup</b>, <b>B6</b>.
 Ayrıca Bölüm 0'ı (ortak temel) grupta sen anlatırsın.</div>
 
 <h3>1.1 Rapor s. 1–3: Gereksinimler ve senaryo</h3>
@@ -248,7 +249,7 @@ def save_figure(fig, filename): fig.savefig(os.path.join(OUTPUT_DIR, filename), 
 <b>Data → Preprocessing → Train/test split → Model → Evaluation → Example prediction (Can) → Block function</b>. Blok sırası B3, B5a, B4, B5b, B1/B2, B6, B7, B8'dir
 çünkü B6 B4/B5b'yi, B7 B6'yı, B8 ise B6 ve B7'yi kullanır.</p>
 
-<h3>1.5 B6 – Mastery percentage over time (rapor s. 21–23)</h3>
+<h3>1.5 B6 – Mastery percentage over time (rapor s. 21–24)</h3>
 <p><b>Görevi:</b> her cevaptan sonra Can'ın her konuyu ne kadar öğrendiğini (yüzde) tahmin etmek ve bunu zaman serisi olarak tutmak (R6).
 <b>Tanım:</b> bir konunun mastery'si = öğrencinin o konudan <b>orta zorlukta</b> bir soruyu <b>dikkatliyken</b> doğru cevaplama olasılığı.
 Bu yönteme <b>knowledge tracing</b> denir; bizim yaptığımız (geçmiş üzerinden Logistic Regression) literatürde <b>Performance Factors Analysis (PFA)</b>.
@@ -371,7 +372,7 @@ After the placement test: addition 82.8, subtraction 65.5, multiplication 38.8, 
 After 4 weeks:            addition 86.6, subtraction 86.5, multiplication 53.9, division 67.3, fractions 65.6</pre>
 <figure><img class="w80" src="../outputs/b6_can_mastery_over_time.png"><figcaption>Şekil 1.5 – Ödevin istediği "zaman içindeki değişim" grafiği (düz = tahmin, noktalı = gerçek).</figcaption></figure>
 
-<h3>1.6 Rapor s. 40–42: Bloklar birlikte, kısıtlar, sonuç</h3>
+<h3>1.6 Rapor s. 41–44: Bloklar birlikte, kısıtlar, sonuç</h3>
 <p>"How the blocks work together" tablosu her bloğun çıktısının bir sonraki bloğa hangi sütun olarak girdiğini gösterir (örn. B4 → B6'da <code>attention</code>, B8'de <code>avg_attention</code>).
 Can için zincir: B2 "çarpma zor" der → B6 en zayıf konusunu çarpma (%53.9) bulur → B7 eldeyi unuttuğunu bulur → B8 onu "Prefers speaking" profiline koyar.
 Kısıtlar: sentetik veri, B3'te dağılım kayması, B5a'da yeni ses, TF-IDF'in bilinmeyen kelimeler, K-Means'in yuvarlak küme varsayımı, çocuk verisinin gizliliği.</p>
@@ -383,7 +384,7 @@ eski hataları unutmuyor. Simülasyonda gerçek mastery'yi bildiğimiz için öl
      KİŞİ 2
 ===================================================================== -->
 <h2 class="p2 pb">2. Kişi 2 – B3 El yazısı rakam tanıma ve B4 Dikkat tespiti</h2>
-<div class="own"><b>Sorumluluk:</b> Rapor s. 9–12 (B3) ve s. 13–15 (B4). Notebook: B3.1–B3.9, B4.1–B4.7.
+<div class="own"><b>Sorumluluk:</b> Rapor s. 9–12 (B3) ve s. 15–16 (B4). Notebook: B3.1–B3.9, B4.1–B4.7.
 Anlatacağın algoritmalar: <b>çok sınıflı Logistic Regression (softmax)</b>, <b>Decision Tree</b>, <b>Random Forest</b>, feature importance.</div>
 
 <h3>2.1 Algoritma: Logistic Regression (çok sınıflı)</h3>
@@ -469,7 +470,7 @@ def b3_read_handwriting(pixels):
 garanti değil; yüksek olasılık da garanti değil. (2) <b>8×8 çok küçük</b>: 6'nın deliği kayboluyor.</p>
 <div class="analogy">Sadece matbaa harfleriyle okumayı öğrenmiş biri el yazısı mektubu okuyamaz – sınavda 100 alsa bile.</div>
 
-<h3>2.6 B3.9: MNIST + Random Forest (rapor s. 12)</h3>
+<h3>2.6 B3.9: MNIST + Random Forest (rapor s. 11)</h3>
 <pre>mnist = fetch_openml("mnist_784", version=1, as_frame=False, parser="liac-arff")
 X_mnist_train, y_mnist_train = X_mnist[:60000], y_mnist[:60000]     # official split
 b3_mnist_model = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=RANDOM_STATE)</pre>
@@ -570,7 +571,7 @@ kararsız kalır (%50). Bu bilinçli bir sadelik; gerçek sistemde yüzün uzun 
      KİŞİ 3
 ===================================================================== -->
 <h2 class="p3 pb">3. Kişi 3 – B5a Sesli rakam tanıma ve B5b Özgüven tespiti</h2>
-<div class="own"><b>Sorumluluk:</b> Rapor s. 12–14 (B5a) ve s. 15–16 (B5b). Notebook: B5a.1–B5a.9, B5b.1–B5b.7.
+<div class="own"><b>Sorumluluk:</b> Rapor s. 12–14 (B5a) ve s. 16–17 (B5b). Notebook: B5a.1–B5a.9, B5b.1–B5b.7.
 Anlatacağın kavramlar: <b>ses sinyali, MFCC</b>, Leave-One-Speaker-Out, kişiselleştirme, <b>Poisson / log-normal dağılım</b>, <b>ikili Logistic Regression ve sigmoid</b>, katsayı okuma.</div>
 
 <h3>3.1 Kavram: ses nasıl sayıya çevrilir – MFCC</h3>
@@ -686,7 +687,7 @@ average:  0.496  0.612  0.658  0.699  0.755  0.821</pre>
 <p>İki sınıf olunca Logistic Regression tek bir ağırlıklı toplam (z) hesaplar ve <b>sigmoid</b> ile olasılığa çevirir (çok sınıfta bunun genellemesi softmax). Adında "regression"
 olsa da bir <b>sınıflandırma</b> modelidir. Özellikler ölçeklendiği için katsayıların büyüklüğü karşılaştırılabilir.</p>
 
-<h3>3.7 B5b – Özgüven tespiti (rapor s. 16–18)</h3>
+<h3>3.7 B5b – Özgüven tespiti (rapor s. 16–17)</h3>
 <p><b>Görevi:</b> B5a ne söylendiğini, B5b <b>nasıl</b> söylendiğini bulur. "Nine!" ve "Hmm… nine?" aynı cevap ama ikincisi muhtemelen tahmin → mastery için daha zayıf kanıt.
 Bu <b>sentiment analizi değil</b> (kelimelerin olumlu/olumsuzluğu değil, sesteki kesinlik) – paralinguistik analiz.</p>
 <pre>def make(n, rate, pauses, delay, pitch, state):
@@ -728,7 +729,7 @@ Anlatacağın kavramlar: <b>şablonla sentetik metin üretimi</b>, <b>TF-IDF</b>
 (addition / subtraction / multiplication / division / fractions). İkisi de ayrıca <b>sentiment</b> (positive / neutral / negative) döndürür, çünkü "I love football" ile
 "I hate football" ikisi de spor ama sadece ilkinde futbol problemleri sorulmalı. B2'de negatif mesaj → kolay sorularla başla.</p>
 
-<h3>4.2 Sentetik metin üretimi (rapor s. 19)</h3>
+<h3>4.2 Sentetik metin üretimi (rapor s. 18)</h3>
 <pre>INTEREST_ITEMS = {"sports": [("football", "played football"), ("basketball", "played basketball"), ...], ...}
 B1_TEMPLATES = {"positive": ["I love {noun}", "I {activity} {when} and it was so much fun", ...],
                 "negative": ["I hate {noun}", "{Noun} is so boring", ...], "neutral": ["I {activity} {when}", ...]}
@@ -774,7 +775,7 @@ Eğitimde hiç görülmemiş kelime tahmin sırasında yok sayılır.</li>
 </ul>
 <div class="analogy">TF-IDF, bir metindeki "ayırt edici" kelimeleri fosforlu kalemle işaretlemek gibidir: "ve", "bir", "benim" her yerde geçer, işaretlenmez; "futbol" işaretlenir.</div>
 
-<h3>4.4 B1: Bölme, model, değerlendirme (rapor s. 19–20)</h3>
+<h3>4.4 B1: Bölme, model, değerlendirme (rapor s. 18–19)</h3>
 <pre>b1_model = Pipeline([("tfidf", TfidfVectorizer()),
                      ("classifier", LogisticRegression(max_iter=1000, random_state=RANDOM_STATE))])</pre>
 <pre class="out">Training messages: 1277  Test messages: 320   Vocabulary size: 349
@@ -789,14 +790,14 @@ food: popcorn, pizza… Animals'da "my" var çünkü şablonlarda "my cat, my do
 <figure><img class="w45" src="../outputs/b1_confusion_matrix.png"></figure>
 <figure><img style="width:95%" src="../outputs/b1_top_words.png"></figure>
 
-<h3>4.5 B2 (rapor s. 20)</h3>
+<h3>4.5 B2 (rapor s. 19)</h3>
 <p>Aynı pipeline; 1113 train / 279 test mesaj.</p>
 <pre class="out">Training accuracy: 0.930   Test accuracy: 0.892  (F1 0.88–0.92 for all topics; 30 misclassified)
 "Long division is easy, but I cried during subtracting big numbers" true subtraction -> predicted division</pre>
 <p>Hatalar çoğunlukla iki konulu mesajlar: model "but" kelimesinin anlamı ters çevirdiğini bilmez (TF-IDF kelime sırasına bakmaz). "repeated addition" aslında çarpma ama "addition" kelimesi içeriyor.</p>
 <figure><img class="w45" src="../outputs/b2_confusion_matrix.png"></figure>
 
-<h3>4.6 Sentiment ve bigram (rapor s. 21)</h3>
+<h3>4.6 Sentiment ve bigram (rapor s. 20)</h3>
 <figure>
 <svg viewBox="0 0 700 105" width="90%">
   <g font-size="11">
@@ -838,7 +839,7 @@ negative F1 0.92 | neutral F1 0.90 | positive F1 0.89</pre>
      KİŞİ 5
 ===================================================================== -->
 <h2 class="p5 pb">5. Kişi 5 – B7 Hata tipi keşfi ve B8 Öğrenci profilleri (unsupervised)</h2>
-<div class="own"><b>Sorumluluk:</b> Rapor s. 24–30 (bölüm 13 ve 14). Notebook: B7.1–B7.6, B8.1–B8.6.
+<div class="own"><b>Sorumluluk:</b> Rapor s. 25–31 (bölüm 13 ve 14). Notebook: B7.1–B7.6, B8.1–B8.6.
 Anlatacağın algoritmalar: <b>K-Means</b>, <b>elbow (inertia)</b>, <b>silhouette</b>, <b>Adjusted Rand Index</b>, <b>PCA</b>, özellik tasarımı, kümeleri isimlendirme.</div>
 
 <h3>5.1 Algoritma: K-Means</h3>
@@ -869,7 +870,7 @@ Anlatacağın algoritmalar: <b>K-Means</b>, <b>elbow (inertia)</b>, <b>silhouett
 </ul>
 <div class="analogy">Bir partide k tane masa var. Herkes en yakın masaya oturur; sonra her masa, etrafında oturanların tam ortasına taşınır; insanlar yine en yakın masaya geçer… Kimse yer değiştirmeyene kadar.</div>
 
-<h3>5.2 B7.1: Veri – her yanlış cevap için soru ve verilen cevap (rapor s. 24)</h3>
+<h3>5.2 B7.1: Veri – her yanlış cevap için soru ve verilen cevap (rapor s. 25)</h3>
 <pre>def make_question(operation, difficulty, rng):  # harder -> bigger numbers; fraction = (numerator, denominator)
 def correct_answer(operation, a, b):             # fractions: common denominator with lcm
 def digit_columns(a, b):                         # 47, 38 -> [(7, 8), (4, 3)]  ones column first
@@ -931,7 +932,7 @@ silhouette: 0.491  0.628  0.717  0.678  0.677  0.665  0.606     -> k = 4 (elbow 
 <p><code>sample_size=5000</code>: silhouette her nokta çifti arası mesafe ister, 18,740 noktada yavaş → 5000'lik örneklemle hesaplanır.</p>
 <figure><img class="w80" src="../outputs/b7_choose_k.png"></figure>
 
-<h3>5.5 B7.4–B7.5: Model, isimlendirme, değerlendirme (rapor s. 26)</h3>
+<h3>5.5 B7.4–B7.5: Model, isimlendirme, değerlendirme (rapor s. 26–27)</h3>
 <pre>centers = pd.DataFrame(b7_scaler.inverse_transform(b7_kmeans.cluster_centers_), columns=B7_FEATURES)
 names[centers["diff_is_tens"].idxmax()] = "forgot_carry"
 names[centers.drop(index=list(names))["same_denominator"].idxmin()] = "fraction_rule"
@@ -957,7 +958,7 @@ ARI (shape features): 0.768   matching name: 90.9 %   ARI (raw columns): 0.028</
 </ul>
 <figure><img class="w80" src="../outputs/b7_clusters.png"><figcaption>Şekil 5.3 – Solda K-Means'in bulduğu, sağda gizli gerçek. Noktalara küçük "jitter" (rastgele kaydırma) eklendi ki üst üste binenler görünsün.</figcaption></figure>
 
-<h3>5.6 B7.6: Blok fonksiyonu, Can'ın hataları, karakteristik hata (rapor s. 26)</h3>
+<h3>5.6 B7.6: Blok fonksiyonu, Can'ın hataları, karakteristik hata (rapor s. 27)</h3>
 <pre>def b7_error_type(operation, a, b, given):      # fractions as text "1/2"
     parse = lambda x: tuple(int(p) for p in x.split("/")) if "/" in str(x) else int(x)
     ... if value(given) == value(correct): return None      # correct answer -> no error
@@ -970,7 +971,7 @@ Can per week (carry/slip/operation/fraction): week1 4/12/3/4 ... week4 1/8/1/1</
 ne kadar daha sık</b> yaptığı: oran = kendi payı ÷ ortalama pay; en büyük oran = karakteristik hata. Dağılım: wrong_operation 67, forgot_carry 51, careless_slip 44, fraction_rule 38.
 Can: forgot_carry oranı 1.51 → karakteristik hatası <b>forgot_carry</b> (B8'in girdisi). Can'ın eğilimi güçlü olsa da oran sadece 1.5 çünkü hatalarının çoğu eldenin mümkün olmadığı sorularda.</p>
 
-<h3>5.7 B8 – Öğrenci profilleri (rapor s. 27–30)</h3>
+<h3>5.7 B8 – Öğrenci profilleri (rapor s. 28–31)</h3>
 <p><b>Görevi:</b> 25 kişilik sınıftaki öğretmene "hangi tür öğrencilerim var ve her türle ne yapmalıyım?" cevabı (R8). Kimse çocuklara "tip A" etiketi vermez → unsupervised.</p>
 <pre>def learning_speed(log):
     history = add_history_features(log)
@@ -1249,6 +1250,24 @@ Harita B9'un öğrenme yoluna verilir (<code>skill_map=B10_SKILL_MAP</code>): de
 <li>Sunumda pratik uzun gelirse: "skip this practice step". B5a yabancı seste ~%50: yanlış duyarsa sayıyı kutuda düzeltip gönderin.</li>
 </ul>
 
+<h3>6.12 Hocanın derste anlattıkları projede nerede? (K-Means++, lexicon priors, outlier, syllabus)</h3>
+<p>Hoca kendi anlattığı konuları projede görmek isteyecek. Syllabus'ın konuları ve bizdeki karşılıkları raporun 18. bölümünde tablo olarak var. En olası üç soru:</p>
+<table>
+<tr><th>Derste</th><th>Projede</th><th>Sonuç</th></tr>
+<tr><td><b>K-Means++</b> (8. hafta)</td><td>Notebook <b>B7.3b</b>: <code>kmeans_plus_plus_init()</code> kendi yazdığımız başlatma; bütün <code>KMeans(...)</code> çağrılarında <code>init="k-means++"</code></td>
+<td>Tek başlangıçla 20 deneme: rastgele başlangıç ortalama inertia 15.367, bizim K-Means++ 13.595, scikit-learn 12.697 (en kararlı)</td></tr>
+<tr><td><b>Lexicon priors</b> (5. hafta)</td><td>Sentiment bölümü: <code>lexicon_features()</code> → <code>pos_ratio, neg_ratio, net_sentiment</code>, StandardScaler, TF-IDF'in yanına <code>hstack</code></td>
+<td>30 mesajla %54 → %65, 60 mesajla %60 → %68; tüm veriyle fark yok (%90,5 / %89,6)</td></tr>
+<tr><td><b>Outlier analysis</b> (syllabus)</td><td>Notebook <b>B8.5b</b>: profil merkezine uzaklık (95. yüzdelik eşik) + Isolation Forest; <code>b8_outlier_check()</code></td>
+<td>10'ar öğrenci işaretlendi, 4'ü ortak; işaretlilerin gizli özellikleri daha uç (|z| 2,2 vs 1,4)</td></tr>
+</table>
+<ul>
+<li><b>K-Means++ tek cümle:</b> ilk merkez rastgele bir nokta; sonraki her merkez, mevcut en yakın merkeze uzaklığının <b>karesiyle (D(x)²) orantılı</b> olasılıkla seçilir → merkezler veriye yayılır, kötü yerel minimuma düşme azalır. scikit-learn'ünkü "greedy" sürüm: her adımda birkaç aday çeker, inertia'yı en çok düşüreni alır – bu yüzden bizimkinden daha kararlı.</li>
+<li><b>Lexicon priors tek cümle:</b> modele veriden öğrenmesi yerine bizim bildiğimiz bilgiyi (pozitif/negatif kelime listesi) ek özellik olarak veriyoruz; az veride çok yardım eder, çok veride TF-IDF aynı kelimeleri zaten öğrenir. Zaafı: "not boring" negatif sayılır.</li>
+<li><b>Outlier tek cümle:</b> K-Means herkesi bir profile koyar; hiçbir profile benzemeyen çocuğa standart öneri yanlış olur. Profil merkezine çok uzak (en uzak %5) olanlar ya da Isolation Forest'in az bölmeyle yalnız bıraktıkları "öğretmen ayrıca baksın" olarak işaretlenir. Isolation Forest: rastgele ağaçlar veriyi bölüyor; sıradışı nokta az bölmede yalnız kalır.</li>
+<li><b>Prompt-tuning makalesi</b> (2. hafta, "Prompt-tuning for improving knowledge tracing"): B6 bir knowledge tracing bloğu; raporda gelecek çalışma olarak bu makale kaynak gösteriliyor. Prompt-tuning: DistilBERT'in 66 milyon parametresi donuk kalır, girdinin önüne eklenen birkaç "sanal token" vektörü (ör. 2×768) eğitilir.</li>
+</ul>
+
 <h3>6.11 Hoca sorarsa – B9 / B10 / demo</h3>
 <div class="ask">
 <b class="q">S: Label'ları kodda gösterin.</b><br>Her blokta <code>show_label(...)</code> / <code>show_no_label(...)</code> satırı; notebook'ta bu isimleri arayın. Bölüm 0.1'deki <code>DIAGRAM_BLOCKS</code> tablosunda her bloğun label'ı yazılı. B9'un label'ı <code>root_cause</code>, B10'unki yok.<br><br>
@@ -1357,6 +1376,71 @@ Harita B9'un öğrenme yoluna verilir (<code>skill_map=B10_SKILL_MAP</code>): de
 <b class="q">S: Sonuçlarınız gerçek hayatta geçerli mi?</b><br>Sentetik bloklar için hayır, pipeline'ın çalıştığını gösteriyor. Gerçek veri kaynakları raporda listeli (ASSISTments, DAiSEE, Eedi, OULAD…). Gerçek veriyle B3 ve B5a'da sınırları test ettik ve çözümler sunduk.<br><br>
 <b class="q">S: Random seed / random_state ne işe yarar?</b><br>Rastgeleliği sabitler; her çalıştırmada aynı sonuç (tekrarlanabilirlik).
 </div>
+
+<!-- =====================================================================
+     BÖLÜM 8 – 27 KASIM SUNUMU
+===================================================================== -->
+<h2 class="all pb">8. 27 Kasım sunumu – prova (herkes)</h2>
+<p><b>Hocanın duyurusu (STIX, 19 Kasım):</b> sunum 27 Kasım 14:40, B Blok Yunus Emre Salonu. Hoca teslim ettiğimiz projeyle ilgili sorular soracak,
+<b>sunum sırasında kodda değişiklik isteyebilir</b> ve <b>her öğrenci bütün sorulara cevap verebilmeli</b>. Ara sınav notun %45'i. Yani "benim bloğum değil"
+diye bir cevap yok: herkes en azından aşağıdaki 25 soruyu ve 8 kod değişikliğini kendi cümleleriyle yapabilmeli.</p>
+
+<h3>8.1 3 dakikalık sunum akışı</h3>
+<ol>
+<li><b>Problem (20 sn):</b> ilkokul matematiği; sistem sadece "yanlış" demiyor, <i>neden</i> yanlış olduğunu bulup ona göre öğretiyor.</li>
+<li><b>Diyagram (40 sn):</b> 11 blok, 8 supervised / 3 unsupervised, üç modalite (metin B1 B2, görsel B3 B4, ses B5a B5b); her kutuda label (<code>y = …</code>); 32 ok kodda <code>DIAGRAM_ARROWS</code>.</li>
+<li><b>Canlı ders (90 sn):</b> Lesson sayfası → sohbet → seviye testi → yanlış cevap → B9 "38'de kaç onluk var?" / "Bu kaç?" → teşhis → öğrenme yolu → Code trace sekmesi ("kodun neresinde?").</li>
+<li><b>Data mining sonucu (30 sn):</b> B9 %82 vs if-else kuralı %31; B6 hata 8,1 vs formül 16,0; B10 14 bağlantının 12'si, 0 yanlış.</li>
+</ol>
+
+<h3>8.2 Herkesin cevaplayabilmesi gereken 25 soru</h3>
+<div class="ask">
+<b class="q">1. Label nedir, kodda nerede?</b><br>Supervised bloğun öğrendiği doğru cevap sütunu (<code>y</code>). Her blokta <code>show_label(...)</code> çıktısı: örn. B4 <code>y = state</code>. Unsupervised bloklarda <code>show_no_label</code>.<br><br>
+<b class="q">2. Supervised / unsupervised farkı, bizde hangisi hangisi?</b><br>Etiket varsa supervised (B1–B6, B9), yoksa unsupervised (B7 hata türleri, B8 profiller, B10 beceri haritası).<br><br>
+<b class="q">3. Diyagramdaki bir ok kodda nerede?</b><br><code>DIAGRAM_ARROWS</code> (bölüm 0.1); demoda <code>arrow("B7", "B9", ...)</code>; 10.7'de 32/32 kontrolü; web'de Code trace sekmesi.<br><br>
+<b class="q">4. Her bloğun girdi/çıktı yapısı?</b><br>Rapor bölüm 5 tablosu; notebook'ta her bloğun başındaki tablo ve blok fonksiyonu (<code>b4_detect_attention(gaze, head, blink) → {state, probabilities}</code>).<br><br>
+<b class="q">5. Train/test split neden önce, scaler neden sonra?</b><br>Data leakage: test verisinin istatistiği eğitime sızmasın; scaler sadece train'e <code>fit</code>, teste <code>transform</code>.<br><br>
+<b class="q">6. B6'da neden öğrenciye göre bölüyorsunuz (GroupShuffleSplit)?</b><br>Aynı öğrencinin cevapları hem train hem testte olursa model öğrenciyi ezberler; test hiç görülmemiş öğrenciler olmalı.<br><br>
+<b class="q">7. Öğrenme yüzdesi nasıl ölçülüyor, zamanla nasıl izleniyor?</b><br>B6: orta zorlukta, dikkatliyken doğru cevap olasılığı; her cevaptan sonra yeniden hesaplanır → zaman serisi (B6.8 grafiği).<br><br>
+<b class="q">8. Cold start nedir?</b><br>Yeni öğrenci için veri yok → B6 sınıf ortalamasını verir; ~5 cevaptan sonra kişiselleşir (hata 12,4 → 8,9 puan). Bu yüzden seviye testi.
+</div>
+<div class="ask">
+<b class="q">9. B7 neden şekil özellikleri kullanıyor, ham sütunları değil?</b><br>Ham sayılar (85, 122) büyüklüğe göre kümeler; hata türü oransal bir şekil. Ham sütunlarla ARI 0,03, şekil özellikleriyle 0,77.<br><br>
+<b class="q">10. k = 4'ü nasıl seçtiniz?</b><br>Elbow (inertia'nın kırıldığı yer) ve silhouette (en yüksek 0,717) ikisi de 4.<br><br>
+<b class="q">11. K-Means++ nedir, sizde nerede?</b><br>Bölüm 6.12; B7.3b, <code>kmeans_plus_plus_init()</code>, D(x)² olasılığı.<br><br>
+<b class="q">12. ARI nedir?</b><br>İki gruplamanın uyumu (etiket isimlerinden bağımsız); 1 = aynı, 0 = rastgele. Sentetik veride gizli türleri bildiğimiz için kullanabildik.<br><br>
+<b class="q">13. B8'de silhouette neden düşük (0,2)?</b><br>Öğrenciler ayrık tiplere değil süreklilik içinde dağılıyor; yine de 4 profil öğretmen için kullanışlı bir bölümleme. Uymayanları outlier analizi buluyor.<br><br>
+<b class="q">14. Outlier analizi nasıl?</b><br>Profil merkezine uzaklık > 95. yüzdelik veya Isolation Forest; <code>b8_outlier_check()</code>.<br><br>
+<b class="q">15. B9 nasıl karar veriyor?</b><br>Karar ağacı bağlamdan ilk tahmini yapar (B7 türü, B4 dikkat, B5b tereddüt, B6 ustalık); sonra en çok bilgi verecek kontrol sorusunu (en düşük beklenen entropi) sorar; her cevapla Bayes güncellemesi; %80 emin olunca durur.<br><br>
+<b class="q">16. Entropi ve Bayes kuralı bir cümlede?</b><br>Entropi = belirsizlik (0 = eminim). Bayes: yeni olasılık ∝ eski olasılık × bu cevabın o nedende görülme olasılığı.
+</div>
+<div class="ask">
+<b class="q">17. B10 nasıl çalışıyor, neden confidence yetmedi?</b><br>Association rules; "A'yı bilmeyenlerin kaçı B'yi biliyor" (without_rate ≤ %10) → A, B'nin önkoşulu. Confidence kolay becerileri her şeyin önkoşulu gösteriyordu. Transitive reduction kısayolları siler.<br><br>
+<b class="q">18. Bu proje if-else'ten nasıl farklı?</b><br>Kuralları veri belirliyor; if-else kuralı (B7 türü → sabit neden) %31, B9 %82; formül 16,0 puan hata, B6 8,1.<br><br>
+<b class="q">19. Veri sentetik, kuralları siz koydunuz?</b><br>Modeller kuralları görmüyor, sadece cevapları görüyor ve gizli yapıyı geri buluyor (ARI 0,77, B10 12/14, B6 8 puan). Yöntem önce cevabı bilinen veride doğrulanır, sonra gerçek veride (Eedi, ASSISTments) kullanılır.<br><br>
+<b class="q">20. Dalgınlık öğretimi nasıl etkiliyor?</b><br>B6'ya iki kez soruyoruz (dikkatli / şu anki dikkat), fark = maliyet; eşik üstünde mola; eşik B8 profiline göre.<br><br>
+<b class="q">21. Ses neden kötü anlıyor, ne yaptınız?</b><br>6 yetişkin, temiz kayıt; yeni seste %50. Kalibrasyon (B5a.9b): her rakam 3 kez, 10× ağırlık → %80.<br><br>
+<b class="q">22. Lexicon priors ne işe yaradı?</b><br>Az veride +8–11 puan, çok veride fark yok (6.12).<br><br>
+<b class="q">23. Neden DistilBERT kullanmadınız?</b><br>TF-IDF + LogReg küçük veride hızlı ve açıklanabilir (%88–90). DistilBERT "soccer" gibi bilinmeyen kelimeleri anlardı; gelecek çalışma (rapor).<br><br>
+<b class="q">24. Cevap yöntemi (ses / yazı / klavye) neye göre seçiliyor?</b><br>Tek rakam → ses (B5a 0–9 tanır), çok basamak → yazı (B3 kutu kutu), kesir → klavye.<br><br>
+<b class="q">25. En zayıf yanınız ne?</b><br>Sentetik veri ve yabancı seste B5a; ikisini de ölçtük ve raporda yazdık (bölüm 19).
+</div>
+
+<h3>8.3 Hocanın isteyebileceği canlı kod değişiklikleri (provası yapılmalı)</h3>
+<p>Notebook'u açık tutun, önce <b>Run All</b> (~45 sn). Değişikliği yapın, sadece o hücreyi ve sonrasını çalıştırın, çıktının nasıl değiştiğini söyleyin.</p>
+<table>
+<tr><th>İstek</th><th>Nerede, ne değişir</th><th>Beklenen</th></tr>
+<tr><td>"B7'de k'yı 5 yap"</td><td>B7.4: <code>KMeans(n_clusters=5, ...)</code>; isimlendirme hücresi 5 kümeyi adlandırır</td><td>Ölçtük: ARI 0,768 → 0,792 (biraz <b>yükselir</b>, bir tür ikiye bölünür), silhouette 0,717 → 0,678 düşer. k'yı ARI'ye göre seçmedik çünkü gerçekte gizli türleri bilmeyiz; seçimi etiketsiz ölçüler (elbow, silhouette) yapar.</td></tr>
+<tr><td>"K-Means++ yerine rastgele başlat"</td><td><code>init="random"</code></td><td>Ölçtük: n_init=10 ile aynı sonuç (ARI 0,768, inertia 12.696); fark n_init=1 ile görünür (B7.3b)</td></tr>
+<tr><td>"Test oranını %30 yap"</td><td>İlgili <code>train_test_split(..., test_size=0.3)</code></td><td>Doğruluk birkaç puan oynar; neden: daha az eğitim verisi</td></tr>
+<tr><td>"B4'te Random Forest yerine Logistic Regression"</td><td>B4 model hücresi: classifier'ı değiştir, imputer'dan sonra <code>StandardScaler()</code> ekle</td><td>Doğruluk benzer/biraz düşük; özellik önemi yerine katsayılar</td></tr>
+<tr><td>"B9 %90 emin olunca dursun"</td><td><code>b9_diagnose(..., confident_at=0.9)</code></td><td>Ölçtük: doğruluk 0,823 → 0,825, soru sayısı 2,28 → 2,99 (az kazanç, çok soru)</td></tr>
+<tr><td>"B10 eşiğini %15 yap"</td><td><code>b10_skill_map(b10_df, max_without_rate=0.15)</code></td><td>Daha çok bağlantı, bazıları yanlış (B10.4 duyarlılık tablosu)</td></tr>
+<tr><td>"B6'dan bir özelliği çıkar"</td><td><code>B6_FEATURES</code> listesinden çıkar, modeli yeniden eğit</td><td>AUC / ustalık hatası kötüleşir → özelliğin katkısı</td></tr>
+<tr><td>"Outlier eşiğini %90'a indir"</td><td><code>np.percentile(b8_distance, 90)</code></td><td>Ölçtük: 10 → 20 öğrenci</td></tr>
+</table>
+<p>Altın kural: ne değiştirdiğinizi söyleyin, çalıştırın, sayının neden değiştiğini <b>kendi cümlenizle</b> açıklayın. Bilmediğiniz bir şey sorulursa
+uydurmayın: "bunu ölçmedik, ölçmek için şunu yapardık" deyin.</p>
 
 </body>
 </html>

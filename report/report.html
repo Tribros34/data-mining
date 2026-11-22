@@ -494,6 +494,16 @@ words + word pairs (1,2)   test accuracy: 0.905
 "Chess is so boring":  (1,1) -> positive (wrong)   (1,2) -> negative (correct)</pre>
 <p>The bigram version is kept as <code>sentiment_model</code> (negative F1 0.92, neutral 0.90, positive 0.89).</p>
 <figure><img class="w45" src="../outputs/sentiment_confusion_matrix.png"><figcaption>Figure 16 – Sentiment confusion matrix.</figcaption></figure>
+<p><b>Lexicon priors (our lecture of week 5).</b> As in the lecture, a small list of positive and negative words gives three features per message –
+<code>pos_ratio</code>, <code>neg_ratio</code>, <code>net_sentiment</code> – which are scaled (<code>StandardScaler</code>) and stacked next to the TF-IDF
+features (<code>hstack</code>) before the Logistic Regression. Test accuracy (small training sets: mean of 10 random draws):</p>
+<table class="w70" style="margin-left:auto;margin-right:auto">
+<tr><th>Training messages</th><th>TF-IDF only</th><th>TF-IDF + lexicon priors</th></tr>
+<tr><td>30</td><td>0.543</td><td><b>0.654</b></td></tr><tr><td>60</td><td>0.603</td><td><b>0.684</b></td></tr>
+<tr><td>2,391 (all)</td><td><b>0.905</b></td><td>0.896</td></tr></table>
+<p>The prior helps a lot when there are few labelled messages – exactly the situation of a new app – and stops helping when data is plentiful, because
+TF-IDF then learns the same words by itself. A lexicon also cannot read negation (<i>"not boring"</i> counts as negative). We keep the TF-IDF model for
+the full data and would use the lexicon features for a new topic or language with little data.</p>
 
 <h3>11.6 Block functions and examples</h3>
 <pre class="out">b1 "Today I played football with my friends, it was awesome!" -> sports 0.715, positive, use_for_problems True
@@ -623,6 +633,18 @@ The <b>silhouette score</b> (−1 … 1) measures how much closer each point is 
 silhouette: 0.491  0.628  0.717  0.678  0.677  0.665  0.606</pre>
 <p>Both measures point to <b>k = 4</b>: the elbow is at 4 and the silhouette is highest there (0.717 = well separated clusters).</p>
 <figure><img class="w80" src="../outputs/b7_choose_k.png"><figcaption>Figure 20 – Choosing the number of error types.</figcaption></figure>
+<h3>B7.3b K-Means++ initialization (our lecture of week 8)</h3>
+<p>K-Means depends on its start: centres that begin in the same dense region can end in a poor local minimum. <b>K-Means++</b> picks the first centre at
+random and every next centre with probability proportional to <b>D(x)²</b>, the squared distance to the nearest centre chosen so far, so the start is spread
+over the data. All <code>KMeans(...)</code> calls write <code>init="k-means++"</code>; <code>kmeans_plus_plus_init()</code> implements the seeding in a
+few lines. With a single start (<code>n_init=1</code>), 20 seeds, B7 data:</p>
+<pre class="out">start                       mean inertia   worst inertia   mean iterations   mean ARI
+random points                   15,367          31,495             8.7           0.765
+K-Means++ (ours)                13,595          30,661             8.1           0.755
+K-Means++ (scikit-learn)        12,697          12,700             5.1           0.772</pre>
+<p>Our K-Means++ gives a lower mean inertia and converges faster than random starts. scikit-learn's version is the most stable (worst run almost equal to
+the mean) because it is the <i>greedy</i> variant: at each step it draws several candidates with the D(x)² probabilities and keeps the one that lowers the
+inertia most. With <code>n_init=10</code> (our real models) all three reach the same clusters.</p>
 
 <h3>B7.4 Model and naming the clusters</h3>
 <p><code>KMeans(n_clusters=4, n_init=10)</code> returns only numbers 0–3; the code names them automatically from the centres: most <code>diff_is_tens</code> →
@@ -716,6 +738,13 @@ hidden distractibility: profile "Easily distracted" 0.413 vs. 0.15–0.21 in the
 hidden ability:         profile "Slow progress · Needs support" -0.706 (lowest)</pre>
 <p><b>Interpretation:</b> the profiles correspond to real hidden differences that K-Means never saw. Learning speed is the noisiest input – about 250 answers
 in four weeks are few for estimating a slope; it would become more reliable over a semester.</p>
+<h3>B8.5b Outlier analysis – students who fit no profile</h3>
+<p>K-Means puts <i>every</i> student into a profile, also one who is unlike all of them; such a child should not get the standard recommendation. Two methods
+flag outliers: (1) the <b>distance to the own profile centre</b> in the scaled K-Means space, above the 95th percentile of all students (2.31), and
+(2) an <b>Isolation Forest</b> (<code>contamination=0.05</code>), which isolates unusual points with few random splits. Each flags 10 of the 200 students,
+4 by both. Check against the hidden traits that neither method sees: the most extreme hidden trait has |z| = 2.15 (distance) and 2.29 (Isolation Forest) on
+average for flagged students, but 1.37 for the others – the flagged children really are unusual. <code>b8_outlier_check()</code> is added to B8's output:
+on the dashboard the teacher sees "does not fit the profile – most unusual: …" (Can fits his profile: distance 1.08).</p>
 
 <h3>B8.6 Block function and Can's profile</h3>
 <pre class="out">Can's B8 input: avg_accuracy 0.581, learning_speed 0.326, avg_attention 0.611, spoken_answer_ratio 0.527, forgot_carry
@@ -1044,6 +1073,22 @@ the meaning of + and − and the addition facts, but not tens, times tables and 
 B7 shows that he tends to forget carries, and B8 classifies him as a child who prefers speaking, recommending voice answers with calibration. B9 goes one step
 deeper: his "forgotten carries" are caused by a missing understanding of <b>place value</b>, and his multiplication problem by missing <b>times tables</b> – so the
 tutor teaches tens and times tables, not more carrying exercises. The demo (Section 17) runs this chain end to end and uses every arrow of the diagram.</p>
+<p><b>Course topics in the project.</b> The topics of the syllabus and where they are used:</p>
+<table>
+<tr><th>Syllabus topic</th><th>Where in the project</th></tr>
+<tr><td>Mining frequent patterns, associations and correlations</td><td>B10: support, confidence, lift, <i>without_rate</i>; transitive reduction</td></tr>
+<tr><td>Classification and regression for predictive analysis</td><td>B1–B5b (TF-IDF + LogReg, Random Forest), B6 (probability), B9 (decision tree + Bayes' rule)</td></tr>
+<tr><td>Cluster analysis</td><td>B7, B8: K-Means with K-Means++ start, elbow and silhouette, ARI</td></tr>
+<tr><td>Outlier analysis</td><td>B8.5b: distance to the profile centre and Isolation Forest</td></tr>
+<tr><td>Statistics of data; similarity and distance measures</td><td>describe() of every dataset; Euclidean distance (K-Means, outliers); entropy (B9); D(x)² (K-Means++)</td></tr>
+<tr><td>Data quality, cleaning and integration</td><td>missing camera values (B4, SimpleImputer); duplicate messages removed (B1, B2); outputs of blocks integrated as inputs of others</td></tr>
+<tr><td>Data transformation</td><td>StandardScaler, one-hot encoding, TF-IDF, MFCC, shape features of a mistake (B7), lexicon priors</td></tr>
+<tr><td>Dimensionality reduction</td><td>PCA for the profile picture (B8); 8×8 → 28×28 image preparation (B3)</td></tr>
+<tr><td>Sequential patterns / pattern mining applications</td><td>B6 answer history in time order; B10 learning patterns of the class; B7 characteristic error per student</td></tr>
+</table>
+<p><b>Learned vs. rule-based.</b> The tutor's flow (chat → placement → question → diagnosis → practice) is program logic, but its decisions come from the
+learned blocks. Where a hand-written rule is possible we compared it: the rule "B7 says forgot_carry → teach carrying" finds the real cause in 31 % of the
+cases, B9 in 82 %; the formula "correct ÷ answered" misses the true mastery by 16.0 points, B6 by 8.1.</p>
 
 <!-- ============================== 19 ============================== -->
 <h2>19. Limitations and future work</h2>
@@ -1053,7 +1098,8 @@ children. Real data sources are listed in Section 21.</li>
 <li><b>Distribution shift (B3).</b> The 8×8 model fails on real drawings; MNIST fixes the example, but children's handwriting differs again from adults'.</li>
 <li><b>Unseen speakers (B5a).</b> Only 6 adult speakers: 49.6 % on a new voice; voice calibration raises it to 70–82 %. A model trained on children's speech is needed.</li>
 <li><b>TF-IDF (B1, B2).</b> Unknown words (<i>soccer</i>) and contrast words (<i>but</i>) are not understood. Future work: fine-tune <b>DistilBERT</b>.</li>
-<li><b>Mastery model (B6).</b> Logistic Regression on a few history features; Bayesian Knowledge Tracing or Deep Knowledge Tracing could capture forgetting and topic relations.</li>
+<li><b>Mastery model (B6).</b> Logistic Regression on a few history features; Bayesian Knowledge Tracing or Deep Knowledge Tracing could capture forgetting and topic relations,
+and <i>prompt-tuning</i> of a pretrained transformer for knowledge tracing (the article of our week 2) could do so with very few trainable parameters.</li>
 <li><b>Clustering (B7, B8).</b> K-Means assumes round clusters; small-number wrong operations look like slips (B7); student profiles are not sharply separated (silhouette ≈ 0.2).</li>
 <li><b>Diagnosis (B9).</b> The root-cause labels come from our simulation; real labels need teachers' diagnoses (e.g. Eedi misconception data). The Bayes update
 assumes that probe answers are independent given the root cause. The learning-effect simulation (B9.9) depends on assumed learning rates and shows the mechanism, not a measured effect.
@@ -1083,6 +1129,9 @@ unknown words) show where real data and stronger models are needed next.</p>
 <!-- ============================== 21 ============================== -->
 <h2>21. References and data sources</h2>
 <ul>
+<li>Course textbook: Han, Pei, Tong, <i>Data Mining: Concepts and Techniques</i>, 4th ed., Morgan Kaufmann.</li>
+<li>Prompt-tuning for improving knowledge tracing in intelligent tutoring, <i>Data Mining and Knowledge Discovery</i>, 2026, https://doi.org/10.1007/s10618-026-01208-9 (course reading, week 2).</li>
+<li>K-Means++: Arthur &amp; Vassilvitskii, <i>k-means++: the advantages of careful seeding</i>, SODA 2007. Isolation Forest: Liu, Ting, Zhou, ICDM 2008.</li>
 <li>scikit-learn: Pedregosa et al., <i>Scikit-learn: Machine Learning in Python</i>, JMLR 12, 2011. https://scikit-learn.org</li>
 <li>B3: <code>sklearn.datasets.load_digits</code> (UCI Optical Recognition of Handwritten Digits); MNIST – LeCun, Cortes, Burges, via OpenML <code>mnist_784</code>.</li>
 <li>B5a: Free Spoken Digit Dataset, https://github.com/Jakobovski/free-spoken-digit-dataset; librosa (McFee et al.) for MFCC extraction.</li>

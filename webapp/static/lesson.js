@@ -359,7 +359,10 @@ async function toggleDashboard() {
         <div class="card"><span class="label">B7 · error types</span>
           ${d.error_share ? bars(d.error_share) + `<p>Characteristic error (share ÷ class average): <b>${esc(d.characteristic)}</b></p>` : `<p class="empty">No wrong answers yet.</p>`}
           <span class="label" style="margin-top:14px">B8 · learning profile</span>
-          ${d.profile ? `<p class="verdict small">${esc(d.profile.profile)}</p><ul>${d.profile.recommendations.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>` : `<p class="empty">${esc(d.profile_note)}</p>`}
+          ${d.profile ? `<p class="verdict small">${esc(d.profile.profile)}</p><ul>${d.profile.recommendations.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>
+            <p class="${d.profile.outlier.is_outlier ? "no" : "muted"}">Outlier check (B8.5b): ${d.profile.outlier.is_outlier
+              ? `does not fit this profile – most unusual: ${esc(d.profile.outlier.most_unusual)}; the teacher should look at this child`
+              : "fits the profile"} (distance ${d.profile.outlier.distance}, threshold ${d.profile.outlier.threshold})</p>` : `<p class="empty">${esc(d.profile_note)}</p>`}
           <p class="muted mono">pace used by the tutor: level up after ${d.pace.level_up_after}, break at ≥ ${d.pace.break_cost} points</p>
         </div>
       </div>

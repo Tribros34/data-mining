@@ -36,7 +36,7 @@ FUNCTIONS = [
     "b9_case", "b9_first_guess", "bayes_update", "b9_next_probe", "b9_decision", "skills_for_question",
     "b9_learning_path", "practice_item", "word_problem", "b7_error_type",
     # tutor decisions from B6 / B8 (notebook section 10.2b)
-    "b6_p_correct", "b6_attention_cost", "next_topic", "b8_pace", "b5a_calibrate",
+    "b6_p_correct", "b6_attention_cost", "next_topic", "b8_pace", "b5a_calibrate", "b8_outlier_check",
 ]
 MODELS = ["b1_model", "b2_model", "sentiment_model", "b3_mnist_model", "b4_model", "b5a_model", "b5b_model"]
 CONSTANTS = ["TOPICS", "TOPIC_START", "ERROR_TYPES", "SYMBOL", "B7_HINTS", "B8_NUMERIC", "B8_PROFILES", "PROFILE_TAGS",
