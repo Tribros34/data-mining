@@ -274,7 +274,8 @@ class Lesson:
         if skill:                                                  # a skill probe: 1 / 0.5 (unsure) / 0
             graded = 0.0 if not right else 0.5 if hesitant == 1 else 1.0
             self.placement_result[skill] = graded
-            self.arrow("TUTOR", "B10", f"placement answer {skill} = {graded} (added to the placement data of B10)")
+            self.arrow("TUTOR", "B10", f"placement answer {skill} = {graded} (one more placement test for B10's data; "
+                                       "the map used in this lesson was mined in advance)")
         else:                                                      # a question of the topic -> B6 log
             self.log_answer(self.current_q, mode, hesitant, attention, right)
         self.say(str(self.rng.choice(["OK, thank you!", "Got it.", "Thanks – next one."])))

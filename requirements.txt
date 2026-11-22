@@ -1,3 +1,6 @@
+# Python 3.12 or newer (the notebook uses nested f-strings); tested with Python 3.14.
+# Data: free-spoken-digit-dataset/ in the project folder (https://github.com/Jakobovski/free-spoken-digit-dataset);
+# MNIST is downloaded once by scikit-learn (fetch_openml) and cached in ~/scikit_learn_data.
 numpy
 pandas
 matplotlib

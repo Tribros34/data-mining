@@ -42,12 +42,14 @@
   <h1>Math Buddy</h1>
   <div class="sub">An Intelligent Tutoring System for Elementary School Mathematics<br>
   expressed as Supervised and Unsupervised Learning Tasks</div>
-  <p style="text-align:center">Machine Learning – Midterm Project Report</p>
+  <p style="text-align:center">Data Mining (COME401) – Midterm Project Report<br>Instructor: Asst. Prof. Dr. Gamze Uslu · Üsküdar University · Fall 2026</p>
   <table>
     <tr><th>Name</th><th>Last name</th><th>Student ID</th></tr>
-    <tr><td>TBD</td><td>TBD</td><td>TBD</td></tr>
-    <tr><td>TBD</td><td>TBD</td><td>TBD</td></tr>
-    <tr><td>TBD</td><td>TBD</td><td>TBD</td></tr>
+    <tr><td>Kerem</td><td>Üçkardeş</td><td>230201810</td></tr>
+    <tr><td>Hamza</td><td>İnan</td><td>230201019</td></tr>
+    <tr><td>Aysu Beyza</td><td>Aksüllü</td><td>230201063</td></tr>
+    <tr><td>Muhammed Hasan</td><td>Selçuk</td><td>240201043</td></tr>
+    <tr><td>Efkan</td><td>Avcı</td><td>200201972</td></tr>
   </table>
   <p style="text-align:center; font-size:9.5pt; color:#555">Submitted files: <code>math_buddy_its.ipynb</code> (code + outputs),
   <code>outputs/</code> (figures), <code>diagram/block_diagram.svg</code>, <code>test_drawings/</code>, <code>requirements.txt</code>, this report.</p>
@@ -153,7 +155,7 @@ unsupervised box says <b>no label</b>. The six perception blocks on top are grou
 (B3, B5a) and logs them for B6 (mastery); a wrong answer goes to B7 (error type) and then to <b>B9</b>, which also uses B4, B5b and B6 and the answers to its
 follow-up probes, and returns the root cause to the tutor (green arrows = feedback). <b>B10</b> mines the skill map from the placement tests and gives the
 tutor the teaching order. B6 and B7 feed B8, and everything reaches the teacher dashboard. The notebook writes this diagram down as code
-(<code>DIAGRAM_BLOCKS</code>, <code>DIAGRAM_ARROWS</code>, Section 17) and the demo checks that all 32 arrows are used.</p>
+(<code>DIAGRAM_BLOCKS</code>, <code>DIAGRAM_ARROWS</code>, Section 17) and the demo checks that all 32 arrows are used (a coverage check).</p>
 <figure><img src="../diagram/block_diagram.svg" style="width:100%">
 <figcaption>Figure 1 – Block diagram of Math Buddy (also in <code>diagram/block_diagram.svg</code>).</figcaption></figure>
 
@@ -190,7 +192,7 @@ for an unsupervised block there is no label.</p>
 <tr><td>B7</td><td>one wrong answer</td><td><code>operation</code>, <code>correct_answer</code>, <code>given_answer</code> (from B3/B5a), <code>difference</code>, <code>ratio</code>, <code>needs_carry</code> → derived: <code>size_ratio_log</code>, <code>error_steps_log</code>, <code>diff_is_tens</code>, <code>same_denominator</code></td><td>none</td><td><code>cluster_id</code> 0–3 → <code>{error_type ∈ {forgot_carry, careless_slip, wrong_operation, fraction_rule}, hint}</code>; per student: share of each type and <code>characteristic_error</code></td></tr>
 <tr><td>B8</td><td>one student</td><td><code>avg_accuracy</code> (0–1), <code>learning_speed</code> (slope), <code>avg_attention</code> (0–1, from B4), <code>spoken_answer_ratio</code> (0–1), <code>characteristic_error</code> (one-hot, from B7)</td><td>none</td><td><code>profile_id</code> 0–3 → <code>{profile name, recommendations[], error hint}</code></td></tr>
 <tr><td>B9</td><td>one wrong answer (diagnostic episode)</td><td><code>topic</code> (one-hot), <code>needs_carry</code> (0/1), <code>digits_reversed</code> (0/1), <code>error_type</code> (one-hot, from B7), <code>attention</code> (one-hot, from B4), <code>answer_hesitant</code> (1/0/−1, from B5b), <code>topic_mastery</code> (0–100, from B6); answers to the probes that were asked: <code>probe_&lt;skill&gt;</code> ∈ {1 confident, 0.5 hesitant, 0 wrong}</td><td><code>root_cause</code> (12 skills + <code>careless</code>)</td><td><code>{error_type, root_cause, probability, probes: [(skill, answer)], top3}</code>; <code>b9_learning_path()</code> → list of steps <code>{skill, tip, items[(text, answer)], move_on_when}</code></td></tr>
-<tr><td>B10</td><td>one placement test (one child)</td><td>one 0/1 column per skill (<code>number_recognition</code> … <code>equivalent_fractions</code>) = at least 3 of 5 probe answers correct</td><td>none</td><td>rules <code>{if_knows, then_knows, support, confidence, lift, without_rate}</code>; skill map <code>{skill: [prerequisites]}</code></td></tr>
+<tr><td>B10</td><td>one placement test (one child)</td><td>one 0/1 column per skill (<code>number_recognition</code> … <code>equivalent_fractions</code>) = at least 3 of 5 probe answers correct</td><td>none</td><td><code>b10_skill_map()</code> returns the skill map <code>{skill: [prerequisites]}</code> and the kept rules <code>{prerequisite, skill, confidence, reverse_confidence, without_rate}</code>; the analysis table of B10.2 also shows support and lift</td></tr>
 </table>
 
 <div class="note"><b>About the data.</b> B3 and B5a use real public datasets. For the other blocks no public dataset with
@@ -488,10 +490,12 @@ because pets are mentioned as <i>my cat</i>, <i>my dog</i> – a pattern of the 
 <h3>11.5 Sentiment – the second output of B1 and B2</h3>
 <p><b>Code:</b> one 3-class model (positive / neutral / negative) is trained on all B1 and B2 messages (2,989 messages). TF-IDF on single words ignores word
 order, so in <i>"Chess is not boring"</i> the word <i>boring</i> points to negative. With <code>ngram_range=(1, 2)</code> TF-IDF also creates features for
-<b>pairs of neighbouring words</b> (bigrams, e.g. <i>"not boring"</i>, <i>"so boring"</i>). Both versions are compared.</p>
-<pre class="out">single words (1,1)         test accuracy: 0.893
-words + word pairs (1,2)   test accuracy: 0.905
-"Chess is so boring":  (1,1) -> positive (wrong)   (1,2) -> negative (correct)</pre>
+<b>pairs of neighbouring words</b> (bigrams, e.g. <i>"not boring"</i>, <i>"so boring"</i>). The two versions are compared with 5-fold
+<b>cross-validation on the training messages</b>; the test set is used only once, for the chosen model.</p>
+<pre class="out">single words (1,1)         cross-validation accuracy (training messages): 0.898
+words + word pairs (1,2)   cross-validation accuracy (training messages): 0.910
+"Chess is so boring":  (1,1) -> positive (wrong)   (1,2) -> negative (correct)
+Test accuracy of the chosen model: 0.905</pre>
 <p>The bigram version is kept as <code>sentiment_model</code> (negative F1 0.92, neutral 0.90, positive 0.89).</p>
 <figure><img class="w45" src="../outputs/sentiment_confusion_matrix.png"><figcaption>Figure 16 – Sentiment confusion matrix.</figcaption></figure>
 <p><b>Lexicon priors (our lecture of week 5).</b> As in the lecture, a small list of positive and negative words gives three features per message –
@@ -831,15 +835,18 @@ with a threshold at a time. The split is <b>by child</b> (<code>GroupShuffleSpli
 <code>show_label("B9", …)</code> prints the label: <code>root_cause</code>, 13 classes.</p>
 
 <h3>B9.4 Model (a) – decision tree for the first guess</h3>
-<pre class="out">max_depth  leaves  train_accuracy  test_accuracy
-        2       4           0.388          0.374
-        6      59           0.551          0.536
-        8     164           0.586          0.563
-       12     478           0.617          0.571
-     None     587           0.625          0.558</pre>
+<pre class="out">max_depth  leaves  train_accuracy  cv_accuracy      (5-fold cross-validation on the training children, grouped by child)
+        2       4           0.388        0.376
+        4      16           0.476        0.455
+        6      59           0.551        0.534
+        8     164           0.586        0.555
+       12     478           0.617        0.552
+     None     587           0.625        0.547
+Chosen by cross-validation: max_depth = 8. Test accuracy, measured once: 0.563</pre>
 <p>A decision tree can be read as a flow chart of yes/no questions, so the teacher (and we) can see why it starts with a guess. <code>max_depth</code> limits the
-number of questions in a row; <code>min_samples_leaf=20</code> keeps every leaf based on at least 20 examples. We choose <b>depth 8</b>: deeper trees gain less than one
-point on the test children but have three times more leaves; the unlimited tree is already worse (overfitting). The first split is
+number of questions in a row; <code>min_samples_leaf=20</code> keeps every leaf based on at least 20 examples. The depth is chosen by
+<b>cross-validation on the training children</b> (<code>GroupKFold</code>, a child's answers never in two folds), not on the test children: depth 8 is
+the best, deeper trees are slightly worse (overfitting) and have three times more leaves. The test children are used once, afterwards. The first split is
 <i>"is B7's error type careless_slip?"</i>, followed by the topic and B6's mastery; the most important columns are <code>topic_mastery</code> (0.38) and
 <code>error_type_careless_slip</code> (0.18). The context alone finds the right cause 56 % of the time – not enough, which is why the tutor asks.</p>
 
@@ -876,6 +883,14 @@ corrects itself to <i>place_value</i> – the right answer.</p>
  B9 tree only     0.563   0.000
   B9 adaptive     0.823   2.278
 B9 all probes     0.829   6.357</pre>
+<p><b>What the 82 % is.</b> In this dataset the context column <code>topic_mastery</code> is generated from the hidden skills and the probe answers come
+from the simulation, so 82 % is the accuracy of <b>B9 given its inputs</b>, not of the whole system end to end; the demo (Section 17) runs B9 on the real
+outputs of B3, B5a, B5b, B4 and B6 for a few cases. <b>Calibration</b> of the stopping rule (does "80 % sure" mean 80 % right?):</p>
+<pre class="out">final probability   (0, 0.5]   (0.5, 0.8]   (0.8, 0.9]   (0.9, 1.0]
+diagnoses              171         924         1811         1094
+share correct         0.44        0.65         0.86         0.96</pre>
+<p>When B9 stops at ≥ 80 %, it is right 86–96 % of the time: the probabilities are, if anything, slightly cautious, although the Bayes update assumes
+that the probe answers are independent given the cause.</p>
 <figure><img class="w70" src="../outputs/b9_probes_vs_accuracy.png"><figcaption>Figure 25 – Diagnosis accuracy and number of follow-up questions on the 400 test children.</figcaption></figure>
 <p><b>Interpretation:</b> translating B7's error type finds the real cause only 31 % of the time. The context lifts it to 56 %, and the follow-up questions to
 <b>82 % with 2.3 questions on average – almost the same as asking all 6.4 probes (83 %)</b>. Per cause, carrying, borrowing and fractions are found
@@ -895,13 +910,20 @@ Step 2: carrying – Column addition with base-ten blocks: 10 ones become 1 ten.
 <h3>B9.9 Does the diagnosis help the child learn? (simulation)</h3>
 <p>For each of the 400 test children with a gap, <code>items_until_mastered</code> counts the items (questions + probes + practice) until every skill of the topic is
 known. <b>B9 off:</b> the tutor keeps giving topic questions; a child picks up the missing skill from one question with 5 % chance. <b>B9 on:</b> after each
-wrong answer B9 diagnoses, then the child practises the diagnosed skill (30 % chance per item if its prerequisites are known).</p>
+wrong answer B9 diagnoses, then the child practises the diagnosed skill (30 % chance per item if its prerequisites are known). To separate the effect
+of the <i>diagnosis</i> from the effect of the <i>practice rate</i>, two more variants use exactly the same practice as "B9 on": <b>random diagnosis</b>
+(practise a random skill of the topic) and <b>ideal diagnosis</b> (always the true missing skill). A child who still misses a skill after 150 items counts
+as <b>not mastered</b>.</p>
 <pre class="out">Children who had something to learn: 346
-Items until the topic is mastered      B9 off   B9 on
-mean                                    43.4    17.6
-median                                  32.5    13.0</pre>
+                   mastered within 150 items   mean items (stopped at 150)   median items
+B9 off                       0.971                       44.4                    36
+random diagnosis             0.908                       57.2                    41
+B9 on                        1.000                       16.9                    13
+ideal diagnosis              1.000                       10.4                     8</pre>
 <figure><img class="w70" src="../outputs/b9_learning_effect.png"><figcaption>Figure 26 – Share of children who mastered their topic after a number of items, with and without B9 (simulation).</figcaption></figure>
-<p><b>Interpretation:</b> with the diagnosis children need about <b>2.5× fewer items</b>. The exact numbers depend on our assumptions (5 % and 30 %), so this is
+<p><b>Interpretation:</b> with B9 children need about <b>2.6× fewer items</b> than without it, and all of them master the topic. The gain comes from the
+<b>diagnosis</b>, not from the higher practice rate: with the same practice, a random diagnosis is even worse than no diagnosis (57 items, 9 % never
+finish), and the ideal diagnosis shows the remaining room (10 items). The exact numbers depend on our assumptions (5 % and 30 %), so this is
 not a measurement of real children; it shows the <b>mechanism</b> – practice works only on the skill that is really missing, so a correct diagnosis saves time,
 and a wrong one (B9 is wrong about 18 % of the time) only costs a few items before the next diagnosis corrects it. This is the ablation "B9 on / off".</p>
 
@@ -955,7 +977,8 @@ recall             0.07   0.57   0.86   0.93   0.93</pre>
 <code>times_tables → equivalent_fractions</code> was kept as a rule but then removed by the transitive reduction, because the chain
 times_tables → division_facts → fraction_concept → equivalent_fractions already connects the two skills. The threshold matters:
 too strict breaks the chains, too loose adds shortcuts – the sensitivity table shows it honestly. With real data there is no "true" map; the mined map would be
-reviewed by teachers.</p>
+reviewed by teachers. A fairer comparison reduces the teacher's map in the same way (13 edges): recall 12/13 = <b>0.92</b>; and 13 of the 14 real
+prerequisites are still <i>reachable</i> through chains of discovered edges (only counting → place_value is lost).</p>
 
 <h3>B10.5 Learning patterns for the teacher</h3>
 <pre class="out">Only 4% of the children without number_recognition know counting -> teach number_recognition first
@@ -970,7 +993,10 @@ learning loop of the demo (re-test after the path, diagnose again if needed) is 
 <p><b>Section 0.1 of the notebook writes the block diagram down as code</b>: <code>DIAGRAM_BLOCKS</code> lists every block with its learning type, modality,
 <b>label</b> and block function; <code>DIAGRAM_ARROWS</code> lists the 32 arrows of Figure 1 and what flows along each. The demo (section 10) calls only block
 functions and prints every arrow it uses with <code>arrow(source, target, message)</code>, which refuses any arrow that is not in the diagram. At the end it
-checks that <b>all 32 arrows were used</b> – so every arrow of the diagram can be found in the code and every line of the output in the diagram.</p>
+checks that <b>all 32 arrows were used</b> – so every arrow of the diagram can be found in the code and every line of the output in the diagram. This is a
+<b>coverage check</b>, not a test of the data that travels along an arrow; the data is checked inside every block. In Figure 1 the six inputs from the
+student are drawn as three modality arrows. On the weekend dashboard B7 sorts Can's <b>real</b> wrong answers of the week (stored with question and answer in
+the log); the four simulated weeks before store only correct / wrong, so their mistakes are reconstructed as in B7.1.</p>
 <p><b>Real and simulated parts:</b> B3 reads real MNIST images (a written answer digit by digit), B5a hears real FSDD recordings (spoken single digits); B4 and
 B5b receive typical camera and voice values of each state (the web app measures them live). Which skills Can and Ela know is scripted – the blocks have to find it out.</p>
 <table>
@@ -1018,7 +1044,8 @@ question with new numbers; the child's answer is computed from what the child no
 <i>forgot_carry</i>; B8 classifies Can as <i>Prefers speaking</i>; B9 lists the three diagnoses with their probes.</p>
 <p><b>Ablation (section 10.8).</b> With <code>BLOCKS_ENABLED["B3"] = False</code> the child types the answer and the diagnosis still works (fallback). With
 <code>BLOCKS_ENABLED["B9"] = False</code> the tutor only has B7's hint "practise column addition with carrying" – exactly the wrong lesson for a child who does not
-know what a ten is; B9.9 measured the cost: about 2.5 times more practice.</p>
+know what a ten is; B9.9 measured the cost: about 2.6 times more practice. The switches are wired for the input blocks (B3, B4, B5a, B5b) and for B9;
+the other blocks always run.</p>
 
 <p><b>Decisions from B6 and B8 (notebook section 10.2b).</b> Three more decisions of the tutor come from the models, not from fixed rules:</p>
 <ul>
@@ -1040,10 +1067,10 @@ profiles (|z| ≥ 0.5): fast learners level up after 2 correct answers in a row 
 the live camera or a camera preset (B4). <b>The tutor decides how every question is answered</b>, with the same rule as <code>read_answer()</code> in the demo:
 a one-digit answer is <i>spoken</i> (B5a can recognise one digit, and B5b measures the hesitation – so the follow-up probes such as "What number is this?" are
 asked and answered by voice), a longer number is <i>written</i> one digit per box (B3), a fraction or a chat message is <i>typed</i> (no block reads "/").
-The page shows what B3 or B5a read, so a misreading can be corrected before sending. Because B5a is weak on a new voice and on a noisy
-microphone (in a test with added background noise it fell from 88 % to 77 %), the page has a <b>"Teach me your voice"</b> step: the child says every digit
-three times and <code>b5a_calibrate()</code> (B5a.9b) retrains B5a with these recordings; with noisy test recordings this raised the accuracy from 69 % to 90 %
-for one speaker and from 56 % to 75 % for another.
+The page shows what B3 or B5a read, so a misreading can be corrected before sending. Because B5a is weak on a new voice (49.6 %, B5a.8) and a
+real microphone adds background noise, the page has a <b>"Teach me your voice"</b> step: the child says every digit three times and
+<code>b5a_calibrate()</code> (B5a.9b) retrains B5a with these recordings, each counted 10 times – in the notebook this raises the accuracy on an unseen speaker
+from 0.697 to 0.795 at three recordings per digit.
 <b>Cold start and placement test:</b> for a new child B6 knows only the class average (shown as "?" per topic). As soon as B2 has chosen the
 topic, the tutor announces a short <b>placement test of that topic</b>: one probe (B9.1) for every skill the topic needs, in the teaching order of the B10 map,
 plus 2 questions of the topic for B6. Nothing is corrected during the test. Afterwards the tutor says which parts the child already knows and teaches from the
@@ -1083,8 +1110,9 @@ tutor teaches tens and times tables, not more carrying exercises. The demo (Sect
 <tr><td>Statistics of data; similarity and distance measures</td><td>describe() of every dataset; Euclidean distance (K-Means, outliers); entropy (B9); D(x)² (K-Means++)</td></tr>
 <tr><td>Data quality, cleaning and integration</td><td>missing camera values (B4, SimpleImputer); duplicate messages removed (B1, B2); outputs of blocks integrated as inputs of others</td></tr>
 <tr><td>Data transformation</td><td>StandardScaler, one-hot encoding, TF-IDF, MFCC, shape features of a mistake (B7), lexicon priors</td></tr>
-<tr><td>Dimensionality reduction</td><td>PCA for the profile picture (B8); 8×8 → 28×28 image preparation (B3)</td></tr>
-<tr><td>Sequential patterns / pattern mining applications</td><td>B6 answer history in time order; B10 learning patterns of the class; B7 characteristic error per student</td></tr>
+<tr><td>Dimensionality reduction</td><td>PCA for the profile picture (B8); MFCC summarises a recording in 40 numbers (B5a)</td></tr>
+<tr><td>Sequential patterns / pattern mining applications</td><td>Pattern mining applications: B10 learning patterns of the class, B7 characteristic error per student. Sequential
+pattern mining itself is <i>not</i> implemented; B6 only uses the answer history in time order (future work: mining frequent sequences of mistakes).</td></tr>
 </table>
 <p><b>Learned vs. rule-based.</b> The tutor's flow (chat → placement → question → diagnosis → practice) is program logic, but its decisions come from the
 learned blocks. Where a hand-written rule is possible we compared it: the rule "B7 says forgot_carry → teach carrying" finds the real cause in 31 % of the
@@ -1118,10 +1146,10 @@ notebook simulation.</li>
 <h2>20. Conclusion</h2>
 <p>We described the requirements of an intelligent tutoring system and expressed Math Buddy's functionality as six supervised perception blocks (text, visual,
 audio), one supervised knowledge-tracing block, one supervised diagnosis block and three unsupervised discovery blocks. For every block we defined the input attributes and the output
-structure and implemented it in Python. The supervised blocks reach 88–97 % test accuracy on their tasks; B6 estimates mastery with an average error of
+structure and implemented it in Python. The supervised perception classifiers (B1–B5b) reach 88–97 % test accuracy on their tasks; B6 estimates mastery with an average error of
 8.1 percentage points – half that of a simple formula – and tracks it over time; B7 recovers error types with 90.9 % agreement; B8 finds learning profiles
 that match hidden student traits and turns them into teaching recommendations. B9 turns the system from a grader into a teacher: with 2.3 adaptive follow-up
-questions it finds the missing skill behind a wrong answer in 82 % of the cases (B7's error type alone: 31 %), and teaching that skill first needs about 2.5 times
+questions it finds the missing skill behind a wrong answer in 82 % of the cases (B7's error type alone: 31 %), and teaching that skill first needs about 2.6 times
 less practice in our simulation. B10 discovers 12 of the 14 prerequisites of the skill map from placement tests, without a single wrong edge. The demo runs a whole
 week end to end and uses every arrow of the block diagram. The honest limitations found along the way (real drawings, unseen voices,
 unknown words) show where real data and stronger models are needed next.</p>

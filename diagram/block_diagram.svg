@@ -161,8 +161,8 @@
   <text class="yn" x="620" y="627">no label</text>
   <text class="s" x="620" y="640">→ profile + teaching recommendation</text>
 
-  <path class="ln" d="M610,392 L610,578"/>
-  <text class="l" x="604" y="560" text-anchor="end">accuracy, speed, attention, voice</text>
+  <path class="ln" d="M745,392 L745,560 L700,560 L700,578"/>
+  <text class="l" x="740" y="552" text-anchor="end">accuracy, speed, attention, voice</text>
   <path class="ln" d="M275,385 L288,385 L288,610 L468,610"/>
   <text class="l" x="296" y="604">characteristic error</text>
 
